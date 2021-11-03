@@ -13,6 +13,7 @@
 	<name>springbootbasicsetup</name>
 	<description>project for learning how to set up spring boot for a simple application</description>
 	<properties>
+		<start-class>springbootbasicsetup.SpringBootBasicSetupApp</start-class>
 		<java.version>17</java.version>
 	</properties>
 	<dependencies>
