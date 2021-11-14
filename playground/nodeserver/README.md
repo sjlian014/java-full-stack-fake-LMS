@@ -1,6 +1,6 @@
 # node server hello world
 
-goal: build the most basic server with node.js to learn the basic concepts of http servers
+goal: build a basic server with node.js to learn the basic concepts/design of servers
 
 ## usage
 

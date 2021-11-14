@@ -1,4 +1,3 @@
-const net = require('net');
 const http = require('http');
 
 // ------------------------------------ http server ------------------------------
@@ -73,20 +72,3 @@ httpServer.listen(port, hostname, () => {
   console.log(`http server running at http://${hostname}:${port}/`);
 });
 
-// ------------------------------------ basic server -----------------------------
-const hostname2 = '127.0.0.1';
-const port2 = 3001;
-
-const server = net.createServer((socket) => {
-  socket.on("data", (buffer) => {
-    console.log(buffer.toString('utf-8'))
-  })
-  socket.on("end", () => {
-    console.log("goodbye")
-  })
-})
-
-server.listen(port2, hostname2, () => {
-  console.log(`basic server running at http://${hostname2}:${port2}/`);
-  console.log('you might want to use telnet to connect to this address')
-});
