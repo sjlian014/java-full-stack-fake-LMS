@@ -1,9 +1,16 @@
-_notes.md
-
-target/
-
+# vsc related settings
 .vscode/
 
+# my notes
+_notes.md
+
+# build artifacts
+target/
+
+# spring boot/ sbi related things
 mvnw
 mvnw.cmd
 HELP.md
+
+# js
+playground/jsasyncawait/node_modules

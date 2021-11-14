@@ -2,11 +2,9 @@
 
 goal: learn how to create a simple spring application with spring boot cli tool following [this guide](https://www.tutorialspoint.com/spring_boot/spring_boot_quick_start.htm) on tutorialspoint.com
 
-## setup
+## usage
 
 make sure spring boot cli is in your $PATH
-
-## usage
 
 in the same directory as hello.groovy, run
 `spring run hello.groovy`
