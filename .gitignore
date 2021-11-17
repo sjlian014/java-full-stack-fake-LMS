@@ -7,7 +7,7 @@ _notes.md
 # build artifacts
 target/
 
-# spring boot/ sbi related things
+# spring boot / sbi related things
 mvnw
 mvnw.cmd
 HELP.md
