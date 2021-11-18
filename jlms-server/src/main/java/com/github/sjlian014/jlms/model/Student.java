@@ -110,11 +110,11 @@ public class Student {
         this.emailAddresses = emailAddresses;
     }
 
-    public PhoneNumber[] getPhoneNumbers() {
+    public ArrayList<PhoneNumber> getPhoneNumbers() {
         return phoneNumbers;
     }
 
-    public void setPhoneNumbers(PhoneNumber[] phoneNumbers) {
+    public void setPhoneNumbers(ArrayList<PhoneNumber> phoneNumbers) {
         this.phoneNumbers = phoneNumbers;
     }
 
