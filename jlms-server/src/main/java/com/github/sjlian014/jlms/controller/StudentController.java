@@ -23,12 +23,12 @@ public class StudentController {
 
     @GetMapping
 	public List<Student> getStudents() {
-		return studentService.getStudents();
+		return studentService.getAll();
     }
 
 	@GetMapping("/sample")
 	public Student getSampleStudnet() {
-		return studentService.getSampleStudnet();
+		return studentService.getSampleStudent();
 	}
 
 }

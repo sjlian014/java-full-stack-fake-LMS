@@ -3,6 +3,13 @@ package com.github.sjlian014.jlms.model;
 import java.util.ArrayList;
 import java.util.Date;
 
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.Id;
+import javax.persistence.Table;
+
+// @Entity
+// @Table
 public class Student {
 
     public enum Major {
@@ -17,6 +24,8 @@ public class Student {
         ENROLLED, NOT_ENROLLED, WITHDRAWN;
     }
 
+    // @Id
+    // @GeneratedValue
     private long id;
     private String firstName;
     private String middleName;
