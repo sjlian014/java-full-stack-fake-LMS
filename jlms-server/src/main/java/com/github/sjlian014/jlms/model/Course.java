@@ -2,6 +2,7 @@ package com.github.sjlian014.jlms.model;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
 
@@ -10,20 +11,26 @@ import javax.persistence.Table;
 public class Course {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
     private String name;
 
-    public Course(long id, String name) {
+    public Course(Long id, String name) {
         this.id = id;
         this.name = name;
     }
 
-    public long getId() {
+    public Course() {}
+
+    public Course(String name) {
+        this.name = name;
+    }
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

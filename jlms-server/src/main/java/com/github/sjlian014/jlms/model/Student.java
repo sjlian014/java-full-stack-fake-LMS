@@ -26,7 +26,7 @@ public class Student {
 
     // @Id
     // @GeneratedValue
-    private long id;
+    private Long id;
     private String firstName;
     private String middleName;
     private String lastName;
@@ -47,7 +47,7 @@ public class Student {
         this.dob = dob;
     }
 
-    public Student(long id, String firstName, String middleName, String lastName, Date dob) {
+    public Student(Long id, String firstName, String middleName, String lastName, Date dob) {
         this.id = id;
         this.firstName = firstName;
         this.middleName = middleName;
@@ -55,11 +55,11 @@ public class Student {
         this.dob = dob;
     }
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 

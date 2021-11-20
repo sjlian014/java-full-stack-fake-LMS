@@ -22,4 +22,8 @@ public class CourseService {
         return courseRepository.findAll();
     }
 
+    public void createSampleCourse() {
+        courseRepository.save(new Course("course 1"));
+    }
+
 }

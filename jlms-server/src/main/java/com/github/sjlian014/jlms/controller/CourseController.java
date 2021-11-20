@@ -26,4 +26,9 @@ public class CourseController {
         return courseService.getAll();
     }
 
+    @GetMapping("/create_sample")
+    public void createSampleCourse(){
+        courseService.createSampleCourse();
+    }
+
 }
