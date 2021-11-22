@@ -28,7 +28,7 @@ public class StudentController {
 
 	@GetMapping("/sample")
 	public Student getSampleStudnet() {
-		return studentService.getSampleStudent();
+		return studentService.getSample();
 	}
 
 }

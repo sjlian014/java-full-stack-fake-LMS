@@ -4,9 +4,11 @@ import java.util.List;
 
 import com.github.sjlian014.jlms.dao.CourseRepository;
 import com.github.sjlian014.jlms.model.Course;
+import com.github.sjlian014.jlms.model.CourseRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class CourseService {
@@ -22,8 +24,20 @@ public class CourseService {
         return courseRepository.findAll();
     }
 
-    public void createSampleCourse() {
-        courseRepository.save(new Course("course 1"));
+    public Course add(Course course) {
+        return courseRepository.save(course);
+    }
+
+    public void delete(Long id) {
+        courseRepository.deleteById(id);
+    }
+
+    @Transactional
+    public Course update(Long id, CourseRequest courseRequest) {
+        return courseRepository.findById(id).map(course-> {
+                course.setName(courseRequest.getName());
+                return course;
+            }).orElseGet(()-> {throw new IllegalStateException("specified course not found");});
     }
 
 }
