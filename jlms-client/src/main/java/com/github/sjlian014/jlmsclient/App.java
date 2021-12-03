@@ -43,12 +43,12 @@ public class App extends Application {
         StudentClient sc = new StudentClient();
         sc.getStudents().forEach(System.out::println);
 
-        Student student = new Student();
-        student.setFirstName("random");
-        student.setLastName("student");
-        student.setEmailAddresses(List.of(new EmailAddress("123@email.org", EmailAddressType.PERSONAL), new EmailAddress("abc@someuni.edu", EmailAddressType.UNIVERSITY)));
+        // Student student = new Student();
+        // student.setFirstName("random");
+        // student.setLastName("student");
+        // student.setEmailAddresses(List.of(new EmailAddress("123@email.org", EmailAddressType.PERSONAL), new EmailAddress("abc@someuni.edu", EmailAddressType.UNIVERSITY)));
 
-        sc.postStudents(student);
+        // sc.postStudents(student);
 
         launch();
     }
