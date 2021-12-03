@@ -24,6 +24,12 @@ public class CourseService {
         return courseRepository.findAll();
     }
 
+    // public Course getByName(String name) {
+    //     return courseRepository.findByName(name).map(course-> {
+    //             return course;
+    //         }).orElseGet(()-> {throw new IllegalStateException("specified course not found");});
+    // }
+
     public Course add(Course course) {
         return courseRepository.save(course);
     }

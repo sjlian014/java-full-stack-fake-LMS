@@ -32,10 +32,11 @@ public class CourseController {
         return courseService.getAll();
     }
 
-    @GetMapping(path = "/sample_request")
-    public CourseRequest getSampleRequest() {
-        return new CourseRequest("sample");
-    }
+    // @GetMapping(path = "/by_name")
+    // public Course getCourseByName(@PathParam("name") String name) {
+    //     System.out.println("[DEBUG] name=" + name);
+    //     return courseService.getByName(name);
+    // }
 
     @PostMapping
     public Course postCourse(@RequestBody Course course) {

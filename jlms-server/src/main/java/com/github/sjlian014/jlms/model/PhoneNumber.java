@@ -1,5 +1,8 @@
 package com.github.sjlian014.jlms.model;
 
+import javax.persistence.Embeddable;
+
+@Embeddable
 public class PhoneNumber {
 
     public enum PhoneNumberType {
@@ -7,11 +10,13 @@ public class PhoneNumber {
     }
 
     private long phoneNum;
-    private PhoneNumberType type;
+    private PhoneNumberType phoneNumType;
+
+    protected PhoneNumber() {}
 
     public PhoneNumber(long phoneNum, PhoneNumberType type) {
         this.phoneNum = phoneNum;
-        this.type = type;
+        this.phoneNumType = type;
     }
 
     public long getPhoneNum() {
@@ -23,11 +28,11 @@ public class PhoneNumber {
     }
 
     public PhoneNumberType getType() {
-        return type;
+        return phoneNumType;
     }
 
     public void setType(PhoneNumberType type) {
-        this.type = type;
+        this.phoneNumType = type;
     }
 
 }

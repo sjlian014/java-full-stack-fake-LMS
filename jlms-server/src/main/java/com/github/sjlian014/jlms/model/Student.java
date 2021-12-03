@@ -1,15 +1,20 @@
 package com.github.sjlian014.jlms.model;
 
-import java.util.ArrayList;
+import java.util.List;
 import java.util.Date;
 
+import javax.persistence.AttributeOverride;
+import javax.persistence.AttributeOverrides;
+import javax.persistence.ElementCollection;
+import javax.persistence.Embedded;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.persistence.Column;
 
-// @Entity
-// @Table
+@Entity
+@Table
 public class Student {
 
     public enum Major {
@@ -24,21 +29,30 @@ public class Student {
         ENROLLED, NOT_ENROLLED, WITHDRAWN;
     }
 
-    // @Id
-    // @GeneratedValue
+    @Id
+    @GeneratedValue
     private Long id;
     private String firstName;
     private String middleName;
     private String lastName;
     private Date dob;
     private Date doa; // date of acceptance
+    @Embedded
     private MailingAddress mailingAddress;
-    private ArrayList<EmailAddress> emailAddresses;
-    private ArrayList<PhoneNumber> phoneNumbers;
+    @ElementCollection
+    private List<EmailAddress> emailAddresses;
+    @ElementCollection
+    private List<PhoneNumber> phoneNumbers;
+    @Embedded
+    @AttributeOverrides({
+            @AttributeOverride( name = "year", column = @Column(name = "startSemesterYear"))
+    }) // year seems to be some sort of keyword in sql, and causes error if not replaced by something else
     private Semester startSemester;
     private Major major;
     private Minor minor;
     private EnrollmentStatus currentStatus;
+
+    protected Student() {} // default constructor per JPA spec, not intended to be used
 
     public Student(String firstName, String middleName, String lastName, Date dob) {
         this.firstName = firstName;
@@ -47,12 +61,22 @@ public class Student {
         this.dob = dob;
     }
 
-    public Student(Long id, String firstName, String middleName, String lastName, Date dob) {
+    public Student(Long id, String firstName, String middleName, String lastName, Date dob, Date doa,
+            MailingAddress mailingAddress, List<EmailAddress> emailAddresses, List<PhoneNumber> phoneNumbers,
+            Semester startSemester, Major major, Minor minor, EnrollmentStatus currentStatus) {
         this.id = id;
         this.firstName = firstName;
         this.middleName = middleName;
         this.lastName = lastName;
         this.dob = dob;
+        this.doa = doa;
+        this.mailingAddress = mailingAddress;
+        this.emailAddresses = emailAddresses;
+        this.phoneNumbers = phoneNumbers;
+        this.startSemester = startSemester;
+        this.major = major;
+        this.minor = minor;
+        this.currentStatus = currentStatus;
     }
 
     public Long getId() {
@@ -111,19 +135,19 @@ public class Student {
         this.mailingAddress = mailingAddress;
     }
 
-    public ArrayList<EmailAddress> getEmailAddresses() {
+    public List<EmailAddress> getEmailAddresses() {
         return emailAddresses;
     }
 
-    public void setEmailAddresses(ArrayList<EmailAddress> emailAddresses) {
+    public void setEmailAddresses(List<EmailAddress> emailAddresses) {
         this.emailAddresses = emailAddresses;
     }
 
-    public ArrayList<PhoneNumber> getPhoneNumbers() {
+    public List<PhoneNumber> getPhoneNumbers() {
         return phoneNumbers;
     }
 
-    public void setPhoneNumbers(ArrayList<PhoneNumber> phoneNumbers) {
+    public void setPhoneNumbers(List<PhoneNumber> phoneNumbers) {
         this.phoneNumbers = phoneNumbers;
     }
 
@@ -161,8 +185,10 @@ public class Student {
 
     @Override
     public String toString() {
-        return "Student [dob=" + dob + ", firstName=" + firstName + ", id=" + id + ", lastName=" + lastName
-                + ", middleName=" + middleName + "]";
+        return "Student [currentStatus=" + currentStatus + ", doa=" + doa + ", dob=" + dob + ", emailAddresses="
+                + emailAddresses + ", firstName=" + firstName + ", id=" + id + ", lastName=" + lastName
+                + ", mailingAddress=" + mailingAddress + ", major=" + major + ", middleName=" + middleName + ", minor="
+                + minor + ", phoneNumbers=" + phoneNumbers + ", startSemester=" + startSemester + "]";
     }
 
 }

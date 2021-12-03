@@ -1,33 +1,38 @@
 package com.github.sjlian014.jlms.model;
 
+import javax.persistence.Embeddable;
+
+@Embeddable
 public class EmailAddress {
 
     public enum EmailAddressType {
         UNIVERSITY, PERSONAL;
     }
 
-    private String eAddr;
-    private EmailAddressType type;
+    private String emailAddress;
+    private EmailAddressType emailAddressType;
 
-    public EmailAddress(String eAddr, EmailAddressType type) {
-        this.eAddr = eAddr;
-        this.type = type;
+    protected EmailAddress() {}
+
+    public EmailAddress(String eAddr, EmailAddressType emailAddressType) {
+        this.emailAddress = eAddr;
+        this.emailAddressType = emailAddressType;
     }
 
     public String geteAddr() {
-        return eAddr;
+        return emailAddress;
     }
 
     public void seteAddr(String eAddr) {
-        this.eAddr = eAddr;
+        this.emailAddress = eAddr;
     }
 
     public EmailAddressType getType() {
-        return type;
+        return emailAddressType;
     }
 
     public void setType(EmailAddressType type) {
-        this.type = type;
+        this.emailAddressType = type;
     }
 
 }

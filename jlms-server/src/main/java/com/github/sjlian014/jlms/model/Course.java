@@ -18,12 +18,12 @@ public class Course {
     @Column(name = "name", nullable = false)
     private String name;
 
+    protected Course() {} // default constructor per JPA spec, not intended to be used
+
     public Course(Long id, String name) {
         this.id = id;
         this.name = name;
     }
-
-    public Course() {}
 
     public Course(String name) {
         this.name = name;

@@ -1,5 +1,8 @@
 package com.github.sjlian014.jlms.model;
 
+import javax.persistence.Embeddable;
+
+@Embeddable
 public class MailingAddress {
 
     public enum AddrType {
@@ -9,15 +12,17 @@ public class MailingAddress {
     private String street;
     private String city;
     private String state;
-    private int zip;
-    private AddrType type;
+    private Integer zip;
+    private AddrType addressType;
 
-    public MailingAddress(String street, String city, String state, int zip, AddrType type) {
+    protected MailingAddress() {}
+
+    public MailingAddress(String street, String city, String state, Integer zip, AddrType addressType) {
         this.street = street;
         this.city = city;
         this.state = state;
         this.zip = zip;
-        this.type = type;
+        this.addressType = addressType;
     }
 
     public String getStreet() {
@@ -44,20 +49,20 @@ public class MailingAddress {
         this.state = state;
     }
 
-    public int getZip() {
+    public Integer getZip() {
         return zip;
     }
 
-    public void setZip(int zip) {
+    public void setZip(Integer zip) {
         this.zip = zip;
     }
 
     public AddrType getType() {
-        return type;
+        return addressType;
     }
 
     public void setType(AddrType type) {
-        this.type = type;
+        this.addressType = type;
     }
 
 }

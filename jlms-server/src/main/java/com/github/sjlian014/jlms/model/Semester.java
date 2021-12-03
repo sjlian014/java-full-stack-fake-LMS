@@ -1,5 +1,8 @@
 package com.github.sjlian014.jlms.model;
 
+import javax.persistence.Embeddable;
+
+@Embeddable
 public class Semester {
 
     public enum SemesterType {
@@ -8,6 +11,8 @@ public class Semester {
 
     private SemesterType semester;
     private int year;
+
+    protected Semester() {}
 
     public Semester(SemesterType semester, int year) {
         this.semester = semester;
