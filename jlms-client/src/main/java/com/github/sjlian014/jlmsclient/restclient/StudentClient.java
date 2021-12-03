@@ -24,32 +24,67 @@ public class StudentClient extends BasicRestClient {
 
     public final String path = Properties.RestClient.STUDENT_ENDPOINT_PATH;
     public final URI uri;
+    private final ObjectMapper mapper;
 
     public StudentClient() {
         super();
+        mapper = new ObjectMapper();
         uri = URI.create(serverUrl + path);
     }
 
     public List<Student> getStudents() {
-        System.out.println(uri.toString());
-        var request = buildRequest();
-        var objectMapper = new ObjectMapper();
+        var request = HttpRequest.newBuilder().uri(uri).GET().build();
+
         HttpResponse<String> response = null;
         try {
             response = backend.sendAsync(request, BodyHandlers.ofString()).get();
-            var results = objectMapper.readValue(response.body(), new TypeReference<List<Student>>(){});
+            var results = mapper.readValue(response.body(), new TypeReference<List<Student>>(){});
             return results;
         } catch (InterruptedException | ExecutionException | JsonProcessingException e) {
             // scream and die loudly
             e.printStackTrace();
             System.out.println("[ERROR] failed to get/parse response! See stack trace for more info.");
-            System.exit(1);
+            System.exit(10);
         }
         return null;
     }
 
-    private HttpRequest buildRequest() {
-        return HttpRequest.newBuilder().uri(uri).build();
+    public void postStudents(Student student) {
+        var request = HttpRequest
+            .newBuilder()
+            .uri(uri)
+            .headers("Content-Type", "application/json;charset=UTF-8")
+            .POST(HttpRequest.BodyPublishers.ofString(studentToJsonString(student)))
+            .build();
+
+        HttpResponse<String> response = null;
+        try {
+            response = backend.sendAsync(request, BodyHandlers.ofString()).get();
+            validateIfRequestIsFulfilled(response);
+        } catch (InterruptedException | ExecutionException e) {
+            // scream and die loudly
+            e.printStackTrace();
+            System.out.println("[ERROR] failed to get/parse response! See stack trace for more info.");
+            System.exit(10);
+        }
+
+    }
+
+    public void validateIfRequestIsFulfilled(HttpResponse<String> response) {
+            if(response.statusCode() > 299 || response.statusCode() < 200) {
+                System.out.println(response.body());
+                throw new RuntimeException("a request was not fulfilled!");
+            }
+    }
+    public String studentToJsonString(Student student) {
+        try {
+            return mapper.writeValueAsString(student);
+        } catch (JsonProcessingException e) {
+            System.out.println("[ERROR] failed to serialize student object.");
+            e.printStackTrace();
+            System.exit(10);
+        }
+        return null;
     }
 
 }

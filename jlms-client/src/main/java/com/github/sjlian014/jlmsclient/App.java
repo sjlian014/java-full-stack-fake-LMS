@@ -3,8 +3,11 @@ package com.github.sjlian014.jlmsclient;
 import java.io.IOException;
 import java.util.List;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.github.sjlian014.jlmsclient.model.EmailAddress;
+import com.github.sjlian014.jlmsclient.model.EmailAddress.EmailAddressType;
+import com.github.sjlian014.jlmsclient.model.Student;
 import com.github.sjlian014.jlmsclient.restclient.StudentClient;
 
 import javafx.application.Application;
@@ -40,7 +43,15 @@ public class App extends Application {
         StudentClient sc = new StudentClient();
         sc.getStudents().forEach(System.out::println);
 
-        // launch();
+        Student student = new Student();
+        student.setFirstName("random");
+        student.setLastName("student");
+        student.setEmailAddresses(List.of(new EmailAddress("123@email.org", EmailAddressType.PERSONAL), new EmailAddress("abc@someuni.edu", EmailAddressType.UNIVERSITY)));
+
+        sc.postStudents(student);
+
+        launch();
     }
+
 
 }

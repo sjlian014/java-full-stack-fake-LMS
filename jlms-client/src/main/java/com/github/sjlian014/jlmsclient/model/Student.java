@@ -164,10 +164,7 @@ public class Student {
 
     @Override
     public String toString() {
-        return "Student [currentStatus=" + currentStatus + ", doa=" + doa + ", dob=" + dob + ", emailAddresses="
-                + emailAddresses + ", firstName=" + firstName + ", id=" + id + ", lastName=" + lastName
-                + ", mailingAddress=" + mailingAddress + ", major=" + major + ", middleName=" + middleName + ", minor="
-                + minor + ", phoneNumbers=" + phoneNumbers + ", startSemester=" + startSemester + "]";
+        return "[%d] %s, %s".formatted(id, lastName, firstName);
     }
 
 }
