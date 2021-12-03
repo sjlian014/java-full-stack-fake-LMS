@@ -31,6 +31,7 @@ public class Student {
     private Minor minor;
     private EnrollmentStatus currentStatus;
 
+    public Student() { }
 
     public Student(String firstName, String middleName, String lastName, Date dob) {
         this.firstName = firstName;

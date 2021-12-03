@@ -5,7 +5,7 @@ import java.util.List;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.github.sjlian014.jlmsclient.restclient.RestClient;
+import com.github.sjlian014.jlmsclient.restclient.StudentClient;
 
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -37,13 +37,8 @@ public class App extends Application {
     }
 
     public static void main(String[] args) throws Exception {
-        RestClient conn = RestClient.getDefaultClient();
-        var result = conn.getResponse(List.of("courses"));
-
-        ObjectMapper om = new ObjectMapper();
-        JsonNode json = om.readTree(result);
-        System.out.println(json.get(0).get("name").asText());
-        json.forEach((course) -> System.out.println(course.toString()));;
+        StudentClient sc = new StudentClient();
+        sc.getStudents().forEach(System.out::println);
 
         // launch();
     }
