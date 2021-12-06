@@ -9,7 +9,7 @@ public class EmailAddress {
     private String emailAddress;
     private EmailAddressType emailAddressType;
 
-    protected EmailAddress() {}
+    public EmailAddress() {}
 
     public EmailAddress(String eAddr, EmailAddressType emailAddressType) {
         this.emailAddress = eAddr;

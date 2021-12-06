@@ -6,14 +6,14 @@ import java.util.Date;
 
 import javax.persistence.*;
 
-@Entity
+@Entity(name = "student")
 @Table
 public class Student {
-/*
-    public enum Major {
-        MAJOR1;
-    }
-*/
+    /*
+        public enum Major {
+            MAJOR1;
+        }
+    */
     public enum Minor {
         Minor1;
     }
@@ -43,12 +43,13 @@ public class Student {
             @AttributeOverride( name = "year", column = @Column(name = "startSemesterYear"))
     }) // year seems to be some sort of keyword in sql, and causes error if not replaced by something else
     private Semester startSemester;
-    @ManyToMany
+    @ManyToOne
+    @JoinColumn(name="major_id")
     private Major major;
     private Minor minor;
     private EnrollmentStatus currentStatus;
 
-    protected Student() {} // default constructor per JPA spec, not intended to be used
+    public Student() {} // default constructor per JPA spec, not intended to be used
 
     public Student(String firstName, String middleName, String lastName, LocalDate dob) {
         this.firstName = firstName;

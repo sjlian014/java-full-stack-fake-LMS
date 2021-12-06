@@ -1,20 +1,10 @@
-package com.github.sjlian014.jlms.model;
+package com.github.sjlian014.jlmsclient.model;
 
-import javax.persistence.*;
-import java.util.List;
-
-
-@Entity
-@Table
 public class Major {
 
-    @Id
-    @GeneratedValue
     private Long id;
     private String name;
     private String description;
-    @OneToMany(mappedBy = "major")
-    private List<Student> students;
     // TODO add a list of requirements
 
     public Major() {}

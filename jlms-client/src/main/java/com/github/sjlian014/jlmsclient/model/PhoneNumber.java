@@ -9,7 +9,7 @@ public class PhoneNumber {
     private long phoneNum;
     private PhoneNumberType phoneNumType;
 
-    protected PhoneNumber() {}
+    public PhoneNumber() {}
 
     public PhoneNumber(long phoneNum, PhoneNumberType type) {
         this.phoneNum = phoneNum;

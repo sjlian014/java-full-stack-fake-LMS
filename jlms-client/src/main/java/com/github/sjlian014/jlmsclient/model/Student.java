@@ -5,10 +5,6 @@ import java.util.List;
 
 public class Student {
 
-    public enum Major {
-        MAJOR1;
-    }
-
     public enum Minor {
         Minor1;
     }

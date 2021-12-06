@@ -1,6 +1,8 @@
 package com.github.sjlian014.jlmsclient;
 
 import com.github.sjlian014.jlmsclient.exception.InvalidDateException;
+import com.github.sjlian014.jlmsclient.model.Student;
+import com.github.sjlian014.jlmsclient.restclient.StudentSerializationEngine;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -26,6 +28,17 @@ public class Util {
         }
 
         return date;
+    }
+
+    public static String date2str(LocalDate source) {
+        return source.format(DateTimeFormatter.ofPattern("MM-dd-uuuu"));
+    }
+
+    // clone a student using SerializationEngine, guaranteed deep copy.
+    public static Student cloneStudent(Student stu2c) {
+        var engine = StudentSerializationEngine.getInstance();
+
+        return engine.deserializeOne(engine.serializeOne(stu2c));
     }
 
 }
