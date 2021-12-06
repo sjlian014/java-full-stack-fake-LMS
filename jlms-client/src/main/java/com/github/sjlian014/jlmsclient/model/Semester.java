@@ -9,7 +9,7 @@ public class Semester {
     private SemesterType semester;
     private int year;
 
-    protected Semester() {}
+    public Semester() {}
 
     public Semester(SemesterType semester, int year) {
         this.semester = semester;
@@ -32,4 +32,8 @@ public class Semester {
         this.semester = semester;
     }
 
+    @Override
+    public String toString() {
+        return "%d %s".formatted(year, semester.name());
+    }
 }

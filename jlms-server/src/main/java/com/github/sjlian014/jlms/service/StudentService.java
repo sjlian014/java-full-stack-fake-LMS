@@ -35,14 +35,4 @@ public class StudentService {
 		studentRepository.deleteById(id);
 	}
 
-	public Student getSample() {
-		Student sampleStudent = new Student("random", "student", "1", Util.getDate(2000, 1, 10));
-		ArrayList<EmailAddress> emailAddresses = new ArrayList<>();
-		emailAddresses.add(new EmailAddress("email@uni.edu", EmailAddressType.UNIVERSITY));
-        emailAddresses.add(new EmailAddress("email@m.com", EmailAddressType.PERSONAL));
-		sampleStudent.setEmailAddresses(emailAddresses);
-		sampleStudent.setMajor(Major.MAJOR1);
-		return sampleStudent;
-	}
-
 }

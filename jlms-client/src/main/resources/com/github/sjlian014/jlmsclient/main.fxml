@@ -33,22 +33,28 @@
 -->
 
 <?import javafx.geometry.Insets?>
+<?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
-<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
+<?import javafx.scene.control.TextArea?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToolBar?>
 <?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.paint.Color?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="600.0" prefWidth="900.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.sjlian014.jlmsclient.controller.MainController">
+<VBox prefHeight="600.0" prefWidth="900.0" stylesheets="@darktheme.css" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.github.sjlian014.jlmsclient.controller.MainController">
   <children>
     <MenuBar VBox.vgrow="NEVER">
       <menus>
@@ -89,39 +95,131 @@
         </Menu>
       </menus>
     </MenuBar>
-    <SplitPane dividerPositions="0.2505567928730512, 0.7505567928730512" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
+    <SplitPane dividerPositions="0.2505567928730512" focusTraversable="true" prefHeight="-1.0" prefWidth="-1.0" VBox.vgrow="ALWAYS">
       <items>
             <AnchorPane>
                <children>
-                  <ListView fx:id="StudentListView" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                  <ListView fx:id="StudentListView" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0" />
+                  <ToolBar layoutY="400.0" prefHeight="40.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                     <items>
+                        <Button fx:id="newButton" mnemonicParsing="false" onAction="#editNewStudent" text="+" />
+                        <Button mnemonicParsing="false" onAction="#syncAllStudents" text="⟳" />
+                        <TextField />
+                     </items>
+                  </ToolBar>
                </children>
             </AnchorPane>
-        <ScrollPane prefHeight="-1.0" prefWidth="-1.0">
-          <content>
-            <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0" prefHeight="545.0" prefWidth="430.0">
+            <SplitPane fx:id="editorPane" dividerPositions="0.75">
+               <items>
+            <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0">
               <children>
-                <Label alignment="CENTER" layoutX="14.0" layoutY="14.0" style="&#10;" text="View" textAlignment="CENTER" wrapText="false">
+                        <ToolBar prefHeight="40.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                           <items>
+                              <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#editorToggleReadOnly" text="🔒 / 🔓" />
+                              <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#postStudent" text="Save" />
+                           </items>
+                        </ToolBar>
+                <Label alignment="CENTER" layoutX="14.0" layoutY="14.0" style="&#10;" text="Editor" textAlignment="CENTER" wrapText="false">
                            <font>
                       <Font size="18.0" fx:id="x1" />
                            </font>
                            <textFill>
                       <Color red="0.624" green="0.624" blue="0.624" fx:id="x2" />
-                           </textFill></Label>
-                        <Label layoutX="14.0" layoutY="43.0" text="hello!" />
+                           </textFill>
+                        </Label>
+                        <GridPane alignment="CENTER" hgap="10.0" layoutY="40.0" vgap="10.0" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="40.0">
+                          <columnConstraints>
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="197.0" minWidth="10.0" percentWidth="40.0" prefWidth="94.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="362.0" minWidth="10.0" prefWidth="316.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="362.0" minWidth="10.0" percentWidth="10.0" prefWidth="316.0" />
+                          </columnConstraints>
+                          <rowConstraints>
+                              <RowConstraints maxHeight="1.7976931348623157E308" minHeight="30.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="1.7976931348623157E308" minHeight="30.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
+                            <RowConstraints maxHeight="1.7976931348623157E308" minHeight="30.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
+                            <RowConstraints maxHeight="1.7976931348623157E308" minHeight="30.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
+                            <RowConstraints maxHeight="1.7976931348623157E308" minHeight="30.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="1.7976931348623157E308" minHeight="30.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="1.7976931348623157E308" minHeight="30.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="1.7976931348623157E308" minHeight="30.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
+                          </rowConstraints>
+                           <padding>
+                              <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                           </padding>
+                           <children>
+                              <Label alignment="CENTER" text="First Name:" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="editorFirstNameTF" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                              <Label alignment="CENTER" text="Last Name:" GridPane.halignment="RIGHT" GridPane.rowIndex="2">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="editorLastNameTF" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                              <Label text="ID:" GridPane.halignment="RIGHT" />
+                              <Label fx:id="editorIDLabel" styleClass="label-unmodifiable-property" text="-" GridPane.columnIndex="1" />
+                              <Label alignment="CENTER" text="Middle Name:" GridPane.halignment="RIGHT" GridPane.rowIndex="3">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="editorMiddleNameTF" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                              <Label alignment="CENTER" text="Date of Birth:" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="editorDobTF" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                              <Label alignment="CENTER" text="Date of Acceptence:" GridPane.halignment="RIGHT" GridPane.rowIndex="5">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                              <TextField fx:id="editorDoaTF" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                              <Label alignment="CENTER" text="Mailing Address:" GridPane.halignment="RIGHT" GridPane.rowIndex="6">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="doaPromptLabel" alignment="BOTTOM_LEFT" styleClass="label-alert" textFill="#ee3939" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="5" GridPane.valignment="BOTTOM">
+                                 <font>
+                                    <Font size="10.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="dobPromptLabel" alignment="BOTTOM_LEFT" styleClass="label-alert" textFill="#ee3939" GridPane.columnIndex="1" GridPane.halignment="LEFT" GridPane.rowIndex="4" GridPane.valignment="BOTTOM">
+                                 <font>
+                                    <Font size="10.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="mailingAddressLabel" styleClass="label-unmodifiable-property" text="None" GridPane.columnIndex="1" GridPane.rowIndex="6" />
+                              <Button fx:id="editorModifyMailingAddressButton" mnemonicParsing="false" onAction="#editorModifyMailingAddress" text="✎" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.rowIndex="6" />
+                              <Label alignment="CENTER" text="Start Semester:" GridPane.halignment="RIGHT" GridPane.rowIndex="7">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="semesterLabel" styleClass="label-unmodifiable-property" text="None" GridPane.columnIndex="1" GridPane.rowIndex="7" />
+                              <Button fx:id="editorModifySemesterButton" mnemonicParsing="false" onAction="#editorModifySemester" text="✎" GridPane.columnIndex="2" GridPane.rowIndex="7" />
+                           </children>
+                        </GridPane>
               </children>
             </AnchorPane>
-          </content>
-        </ScrollPane>
-        <AnchorPane>
-          <children>
-            <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;" text="Details" textAlignment="CENTER" textFill="$x2" wrapText="false" />
-          </children>
-        </AnchorPane>
+              <AnchorPane>
+                <children>
+                  <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;" text="Raw" textAlignment="CENTER" textFill="$x2" wrapText="false" />
+                        <TextArea fx:id="rawTextArea" editable="false" layoutX="11.0" layoutY="44.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="40.0" />
+                </children>
+              </AnchorPane>
+               </items>
+            </SplitPane>
       </items>
     </SplitPane>
     <HBox id="HBox" alignment="CENTER_LEFT" spacing="5.0" VBox.vgrow="NEVER">
       <children>
-        <Label maxHeight="1.7976931348623157E308" maxWidth="-1.0" text="Left status" HBox.hgrow="ALWAYS">
+        <Label fx:id="leftStatus" maxHeight="1.7976931348623157E308" maxWidth="-1.0" text="Left status" HBox.hgrow="ALWAYS">
           <font>
             <Font size="11.0" fx:id="x3" />
           </font>

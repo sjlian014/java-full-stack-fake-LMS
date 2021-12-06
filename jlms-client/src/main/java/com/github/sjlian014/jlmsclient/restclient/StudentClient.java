@@ -1,5 +1,6 @@
 package com.github.sjlian014.jlmsclient.restclient;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
@@ -9,8 +10,6 @@ import java.util.concurrent.ExecutionException;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.sjlian014.jlmsclient.Properties;
 import com.github.sjlian014.jlmsclient.model.Student;
 
@@ -20,54 +19,49 @@ import com.github.sjlian014.jlmsclient.model.Student;
  *
  *
  */
-public class StudentClient extends BasicRestClient {
-
-    public final String path = Properties.RestClient.STUDENT_ENDPOINT_PATH;
-    public final URI uri;
-    private final ObjectMapper mapper;
+public class StudentClient extends RestClient<Student> {
 
     public StudentClient() {
-        super();
-        mapper = new ObjectMapper();
-        uri = URI.create(serverUrl + path);
+        super(Properties.RestClient.STUDENT_ENDPOINT_PATH, StudentSerializationEngine.getInstance());
     }
 
     public List<Student> getStudents() {
         var request = HttpRequest.newBuilder().uri(uri).GET().build();
 
-        HttpResponse<String> response = null;
         try {
-            response = backend.sendAsync(request, BodyHandlers.ofString()).get();
-            var results = mapper.readValue(response.body(), new TypeReference<List<Student>>(){});
-            return results;
-        } catch (InterruptedException | ExecutionException | JsonProcessingException e) {
-            // scream and die loudly
-            e.printStackTrace();
-            System.out.println("[ERROR] failed to get/parse response! See stack trace for more info.");
-            System.exit(10);
+            HttpResponse<String> response = backend.send(request, BodyHandlers.ofString());
+            return serializationEngine.deserializeMany(response.body());
+        } catch (InterruptedException | IOException e) {
+            handleException(e);
         }
         return null;
     }
 
-    public void postStudents(Student student) {
+    public Student postStudent(Student student) {
         var request = HttpRequest
             .newBuilder()
             .uri(uri)
             .headers("Content-Type", "application/json;charset=UTF-8")
-            .POST(HttpRequest.BodyPublishers.ofString(studentToJsonString(student)))
+            .POST(HttpRequest.BodyPublishers.ofString(serializationEngine.serializeOne(student)))
             .build();
 
-        HttpResponse<String> response = null;
         try {
-            response = backend.sendAsync(request, BodyHandlers.ofString()).get();
+            HttpResponse<String> response = backend.sendAsync(request, BodyHandlers.ofString()).get();
             validateIfRequestIsFulfilled(response);
+            return serializationEngine.deserializeOne(response.body());
         } catch (InterruptedException | ExecutionException e) {
-            // scream and die loudly
-            e.printStackTrace();
-            System.out.println("[ERROR] failed to get/parse response! See stack trace for more info.");
-            System.exit(10);
+            handleException(e);
         }
 
+        return null;
+    }
+
+    private void handleException(Exception e) {
+        // TODO proper exception handling
+        // scream and die loudly
+        e.printStackTrace();
+        System.out.println("[ERROR] failed to get/parse response! See stack trace for more info.");
+        System.exit(10);
     }
 
     public void validateIfRequestIsFulfilled(HttpResponse<String> response) {
@@ -75,16 +69,6 @@ public class StudentClient extends BasicRestClient {
                 System.out.println(response.body());
                 throw new RuntimeException("a request was not fulfilled!");
             }
-    }
-    public String studentToJsonString(Student student) {
-        try {
-            return mapper.writeValueAsString(student);
-        } catch (JsonProcessingException e) {
-            System.out.println("[ERROR] failed to serialize student object.");
-            e.printStackTrace();
-            System.exit(10);
-        }
-        return null;
     }
 
 }

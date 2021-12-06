@@ -32,4 +32,12 @@ public class EmailAddress {
         this.emailAddressType = type;
     }
 
+    @Override
+    public String toString() {
+        return "EmailAddress{" +
+                "emailAddress='" + emailAddress + '\'' +
+                ", emailAddressType=" + emailAddressType +
+                '}';
+    }
+
 }

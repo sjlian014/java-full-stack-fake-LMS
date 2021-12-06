@@ -2,16 +2,19 @@ package com.github.sjlian014.jlmsclient;
 
 import java.net.http.HttpClient.Version;
 import java.time.Duration;
+import java.util.HashMap;
 
 /**
  * Properties
  *
- * public namespace for sahred constant variables
+ * public namespace for shared constant variables
  *
  */
 public final class Properties {
 
-    // subnamespace for restclient package
+    private Properties() {} // prevent any instances to be created
+
+    // sub-namespace for constants used by the restclient layer
     public static final class RestClient {
         public static final String SERVER_URL = "http://localhost:8080";
         public static final Version HTTP_VERSION = Version.HTTP_1_1;

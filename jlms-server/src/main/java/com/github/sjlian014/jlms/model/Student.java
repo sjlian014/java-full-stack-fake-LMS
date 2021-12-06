@@ -1,5 +1,6 @@
 package com.github.sjlian014.jlms.model;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Date;
 
@@ -35,8 +36,8 @@ public class Student {
     private String firstName;
     private String middleName;
     private String lastName;
-    private Date dob;
-    private Date doa; // date of acceptance
+    private LocalDate dob;
+    private LocalDate doa; // date of acceptance
     @Embedded
     private MailingAddress mailingAddress;
     @ElementCollection
@@ -54,14 +55,14 @@ public class Student {
 
     protected Student() {} // default constructor per JPA spec, not intended to be used
 
-    public Student(String firstName, String middleName, String lastName, Date dob) {
+    public Student(String firstName, String middleName, String lastName, LocalDate dob) {
         this.firstName = firstName;
         this.middleName = middleName;
         this.lastName = lastName;
         this.dob = dob;
     }
 
-    public Student(Long id, String firstName, String middleName, String lastName, Date dob, Date doa,
+    public Student(Long id, String firstName, String middleName, String lastName, LocalDate dob, LocalDate doa,
             MailingAddress mailingAddress, List<EmailAddress> emailAddresses, List<PhoneNumber> phoneNumbers,
             Semester startSemester, Major major, Minor minor, EnrollmentStatus currentStatus) {
         this.id = id;
@@ -111,19 +112,19 @@ public class Student {
         this.lastName = lastName;
     }
 
-    public Date getDob() {
+    public LocalDate getDob() {
         return dob;
     }
 
-    public void setDob(Date dob) {
+    public void setDob(LocalDate dob) {
         this.dob = dob;
     }
 
-    public Date getDoa() {
+    public LocalDate getDoa() {
         return doa;
     }
 
-    public void setDoa(Date doa) {
+    public void setDoa(LocalDate doa) {
         this.doa = doa;
     }
 

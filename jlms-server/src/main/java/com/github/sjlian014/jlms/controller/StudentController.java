@@ -27,6 +27,11 @@ public class StudentController {
 
     @GetMapping
 	public List<Student> getStudents() {
+        try {
+            Thread.sleep(2000);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
 		return studentService.getAll();
     }
 
@@ -48,10 +53,5 @@ public class StudentController {
     // public Student updateStudent(@PathVariable("studentId") Long id, @RequestBody StudentRequest) {
 
     // }
-
-	@GetMapping("/sample")
-	public Student getSampleStudnet() {
-		return studentService.getSample();
-	}
 
 }

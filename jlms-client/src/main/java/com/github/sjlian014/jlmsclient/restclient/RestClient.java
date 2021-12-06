@@ -8,50 +8,45 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpResponse.BodyHandlers;
 import java.time.Duration;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.ExecutionException;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.sjlian014.jlmsclient.Properties;
 
-public abstract class BasicRestClient {
+public abstract class RestClient<T> {
 
     // private static RestClient defaultClient = new RestClient();
     protected final String serverUrl; // cached server url
     protected final Version httpVersion;
     protected final Duration timeout;
     protected HttpClient backend;
+    protected final URI uri;
+    protected final SerializationEngine<T> serializationEngine;
 
-    protected BasicRestClient(final String serverDomain, final int port, final HttpClient.Version httpVersion, Duration timeoutDuration) {
+    protected RestClient(final String serverDomain, final int port, final HttpClient.Version httpVersion, Duration timeoutDuration, String pathToUri, SerializationEngine serializationEngine) {
         this.httpVersion = httpVersion;
         this.timeout = timeoutDuration;
         serverUrl = generateConnStr(serverDomain, port);
+        this.uri = URI.create(serverUrl + pathToUri);
+        this.serializationEngine = serializationEngine;
         backend = HttpClient.newBuilder().version(httpVersion).connectTimeout(timeoutDuration).build();
     }
 
-    protected BasicRestClient() {
+    protected RestClient(String pathToUri, SerializationEngine serializationEngine) {
         this.httpVersion = Properties.RestClient.HTTP_VERSION;
         this.timeout = Properties.RestClient.TIMEOUT_DURATION;
         serverUrl = Properties.RestClient.SERVER_URL;
+        this.uri = URI.create(serverUrl + pathToUri);
+        this.serializationEngine = serializationEngine;
         backend = HttpClient.newBuilder().version(httpVersion).connectTimeout(timeout).build();
     }
 
-    // public String getResponse(List<String> path) {
-    //     final URI uri = URI.create(path.stream().reduce(serverUrl, (acc, token) -> acc + "/" + token));
-    //     System.out.println(uri.toString());
-    //     HttpRequest request = HttpRequest.newBuilder().uri(uri).build();
-    //     try {
-    //         HttpResponse<String> response = backend.sendAsync(request, BodyHandlers.ofString()).get();
-    //         return response.body();
-    //     } catch (InterruptedException | ExecutionException e) {
-    //         e.printStackTrace();
-    //         return null;
-    //     }
-    // }
+    public SerializationEngine<T> getSerializationEngine() {
+        return serializationEngine;
+    }
 
-    // public static RestClient getDefaultClient() {
-    //     return defaultClient;
-    // }
-
-    private static String generateConnStr(String domain, int port) {
+    public final static String generateConnStr(String domain, int port) {
         return "http://" + domain + ":" + port;
     }
 
