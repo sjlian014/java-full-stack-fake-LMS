@@ -37,7 +37,6 @@ public class StudentController {
 
     @PostMapping
     public Student postStudent(@RequestBody Student student) {
-        System.out.println(student);
         return studentService.add(student);
     }
 

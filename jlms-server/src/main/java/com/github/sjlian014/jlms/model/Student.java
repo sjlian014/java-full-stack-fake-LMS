@@ -4,24 +4,16 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Date;
 
-import javax.persistence.AttributeOverride;
-import javax.persistence.AttributeOverrides;
-import javax.persistence.ElementCollection;
-import javax.persistence.Embedded;
-import javax.persistence.Entity;
-import javax.persistence.GeneratedValue;
-import javax.persistence.Id;
-import javax.persistence.Table;
-import javax.persistence.Column;
+import javax.persistence.*;
 
 @Entity
 @Table
 public class Student {
-
+/*
     public enum Major {
         MAJOR1;
     }
-
+*/
     public enum Minor {
         Minor1;
     }
@@ -33,8 +25,10 @@ public class Student {
     @Id
     @GeneratedValue
     private Long id;
+    @Column(nullable = false)
     private String firstName;
     private String middleName;
+    @Column(nullable = false)
     private String lastName;
     private LocalDate dob;
     private LocalDate doa; // date of acceptance
@@ -49,6 +43,7 @@ public class Student {
             @AttributeOverride( name = "year", column = @Column(name = "startSemesterYear"))
     }) // year seems to be some sort of keyword in sql, and causes error if not replaced by something else
     private Semester startSemester;
+    @ManyToMany
     private Major major;
     private Minor minor;
     private EnrollmentStatus currentStatus;

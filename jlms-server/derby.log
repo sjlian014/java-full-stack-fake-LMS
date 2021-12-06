@@ -1,6 +1,6 @@
 ----------------------------------------------------------------
-Sun Dec 05 23:29:14 EST 2021:
-Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance a816c00e-017d-8e00-c3ea-000002ffcfe0 
+Mon Dec 06 05:58:10 EST 2021:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.14.2.0 - (1828579): instance a816c00e-017d-8f64-d643-00000303a620 
 on database directory memory:/home/sj/dev/java/projects/java-full-stack-fake-lms/jlms-server/local with class loader jdk.internal.loader.ClassLoaders$AppClassLoader@21588809 
 Loaded from file:/home/sj/.m2/repository/org/apache/derby/derby/10.14.2.0/derby-10.14.2.0.jar
 java.vendor=N/A

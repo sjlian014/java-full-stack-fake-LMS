@@ -7,7 +7,6 @@ import com.github.sjlian014.jlms.dao.StudentRepository;
 import com.github.sjlian014.jlms.model.EmailAddress;
 import com.github.sjlian014.jlms.model.EmailAddress.EmailAddressType;
 import com.github.sjlian014.jlms.model.Student;
-import com.github.sjlian014.jlms.model.Student.Major;
 import com.github.sjlian014.jlms.util.Util;
 
 import org.springframework.beans.factory.annotation.Autowired;

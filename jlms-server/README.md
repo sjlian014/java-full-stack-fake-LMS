@@ -41,4 +41,6 @@ application backend powered by the spring boot framework and derby db
   - type: video tutorial
   - author: Daily Code Buffer
   - desc: a more in-depth tutorial on spring data jpa
-
+1. [Working with Relationships in Spring Data REST](https://www.baeldung.com/spring-data-rest-relationships)
+   - type: written tutorial
+   - host: Baeldung
