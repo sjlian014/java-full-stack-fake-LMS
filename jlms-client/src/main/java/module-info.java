@@ -10,4 +10,6 @@ module com.github.sjlian014.jlmsclient {
     opens com.github.sjlian014.jlmsclient.controller to javafx.fxml;
     exports com.github.sjlian014.jlmsclient;
     opens com.github.sjlian014.jlmsclient.controller.form to javafx.fxml;
+    exports com.github.sjlian014.jlmsclient.Util;
+    opens com.github.sjlian014.jlmsclient.Util to com.fasterxml.jackson.databind;
 }

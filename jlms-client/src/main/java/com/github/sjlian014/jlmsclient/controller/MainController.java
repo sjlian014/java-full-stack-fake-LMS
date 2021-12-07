@@ -1,7 +1,8 @@
 package com.github.sjlian014.jlmsclient.controller;
 
 import com.github.sjlian014.jlmsclient.Properties;
-import com.github.sjlian014.jlmsclient.Util;
+import com.github.sjlian014.jlmsclient.Util.ChoiceBoxUtil;
+import com.github.sjlian014.jlmsclient.Util.Util;
 import com.github.sjlian014.jlmsclient.controller.form.*;
 import com.github.sjlian014.jlmsclient.exception.InvalidDateException;
 import com.github.sjlian014.jlmsclient.model.*;
@@ -18,7 +19,6 @@ import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.util.Duration;
 import javafx.util.Pair;
-import javafx.util.StringConverter;
 
 import java.time.LocalDate;
 import java.util.*;
@@ -32,15 +32,17 @@ public class MainController {
     @FXML private ListView<Student> studentListView;
     @FXML private SplitPane editorPane;
     @FXML private TextArea rawTextArea;
-    @FXML private TextField editorFirstNameTF, editorLastNameTF, editorMiddleNameTF, editorDobTF, editorDoaTF;
+    @FXML private TextField editorFirstNameTF, editorLastNameTF, editorMiddleNameTF;
+    @FXML private DatePicker editorDoaDP, editorDobDP;
     @FXML private Label editorIDLabel;
     @FXML private Label dobPromptLabel, doaPromptLabel;
     @FXML private Label mailingAddressLabel, semesterLabel;
     @FXML private Button editorModifyMailingAddressButton, editorModifySemesterButton, editorModifyEmailAddressButton,
             editorAddEmailAddressButton, editorModifyPhoneNumberButton, editorAddPhoneNumberButton;
     @FXML private ChoiceBox<Pair<String, EnrollmentStatus>> editorEnrollmentCB;
-    @FXML private ChoiceBox<Pair<String, EmailAddress>> editorEmailAddressesCB;
-    @FXML private ChoiceBox<Pair<String, PhoneNumber>> editorPhoneNumbersCB;
+
+    @FXML private ListView<EmailAddress> editorEmailAddressesLV;
+    @FXML private ListView<PhoneNumber> editorPhoneNumbersLV;
 
     @FXML private  Label leftStatus;
 
@@ -100,7 +102,7 @@ public class MainController {
 
     @FXML
     private void editorModifyMailingAddress() {
-        editor.showMailingAddresssForm();
+        editor.showMailingAddressForm();
     }
 
     @FXML
@@ -133,15 +135,17 @@ public class MainController {
 
         // FXML elements
         private final SplitPane container;
-        private final TextField firstNameInput, lastNameInput, middleNameInput, dobInput, doaInput;
+        private final TextField firstNameInput, lastNameInput, middleNameInput;
+        private final DatePicker doaInput, dobInput;
         private final Label dobPrompt, doaPrompt;
         private final Label idView;
         private final Label mailingAddrView, semesterView;
         private final TextArea rawView;
         private final Button mailingAddrMod, semesterMod, emailAddrAdd, emailAddrMod, phoneNumAdd, phoneNumMod;
         private final ChoiceBox<Pair<String, EnrollmentStatus>> enrollmentStatus;
-        private final ChoiceBox<Pair<String, EmailAddress>> emailAddressView;
-        private final ChoiceBox<Pair<String, PhoneNumber>> phoneNumberView;
+        // private final ChoiceBox<Pair<String, EmailAddress>> emailAddressView;
+        private final ListView<EmailAddress> emailAddressView;
+        private final ListView<PhoneNumber> phoneNumberView;
 
         // since we cannot make existing nodes implement interfaces, the next best thing is to have a map to
         // function that sorta acts like a common interface
@@ -168,12 +172,12 @@ public class MainController {
             this.firstNameInput = editorFirstNameTF;
             this.lastNameInput = editorLastNameTF;
             this.middleNameInput = editorMiddleNameTF;
-            this.dobInput = editorDobTF;
-            this.doaInput = editorDoaTF;
+            this.dobInput = editorDobDP;
+            this.doaInput = editorDoaDP;
 
             // clickables
             this.enrollmentStatus = editorEnrollmentCB;
-            initEnrollmentStatusChoiceBox();
+            ChoiceBoxUtil.mapEnum(EnrollmentStatus.values(), enrollmentStatus);
             this.mailingAddrMod = editorModifyMailingAddressButton;
             this.semesterMod = editorModifySemesterButton;
             this.phoneNumAdd = editorAddPhoneNumberButton;
@@ -193,10 +197,8 @@ public class MainController {
             this.dobPrompt = dobPromptLabel;
 
             // selectors
-            this.emailAddressView = editorEmailAddressesCB;
-            initEmailAddressChoiceBox();
-            this.phoneNumberView = editorPhoneNumbersCB;
-            initPhoneNumberChoiceBox();
+            this.emailAddressView = editorEmailAddressesLV;
+            this.phoneNumberView = editorPhoneNumbersLV;
 
             operationMap = new HashMap<>();
             initOperationMap();
@@ -216,69 +218,24 @@ public class MainController {
             autoSaveTimer.setCycleCount(Timeline.INDEFINITE);
         }
 
-        private void initPhoneNumberChoiceBox() {
-            phoneNumberView.setConverter(new StringConverter<>() {
-                @Override
-                public String toString(Pair<String, PhoneNumber> pair) {
-                    return (pair != null) ? pair.getKey() : "";
-                }
-
-                @Override
-                public Pair<String, PhoneNumber> fromString(String s) {
-                    return null;
-                }
-            });
-        }
-
-        private void initEmailAddressChoiceBox() {
-            emailAddressView.setConverter(new StringConverter<>() {
-                @Override
-                public String toString(Pair<String, EmailAddress> pair) {
-                    return (pair != null) ? pair.getKey() : "";
-                }
-
-                @Override
-                public Pair<String, EmailAddress> fromString(String s) {
-                    return null;
-                }
-            });
-            emailAddressView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Pair<String, EmailAddress>>() {
-                    @Override
-                    public void changed(ObservableValue<? extends Pair<String, EmailAddress>> ov, Pair<String, EmailAddress> oldV, Pair<String, EmailAddress> newV) {
-                        if(ov != null)
-                            emailAddrMod.setDisable(false);
-                        else
-                            emailAddrMod.setDisable(true);
-                    }
-                }
-
-            );
-        }
-
-        private void initEnrollmentStatusChoiceBox() {
-            enrollmentStatus.getItems().addAll(
-                    Arrays.stream(EnrollmentStatus.values())
-                            .map((v) -> new Pair<>(v.name(), v))
-                            .collect(Collectors.toList()));
-            enrollmentStatus.setConverter(new StringConverter<>() {
-                @Override
-                public String toString(Pair<String, EnrollmentStatus> pair) {
-                    return (pair != null) ? pair.getKey() : "";
-                }
-
-                @Override
-                public Pair<String, EnrollmentStatus> fromString(String s) {
-                    return null;
-                }
-            });
-        }
-
         private void initOperationMap() {
-            operationMap.put(firstNameInput, (self) -> student.setFirstName(((TextField)self).getText()));
-            operationMap.put(lastNameInput, (self) -> student.setLastName(((TextField)self).getText()));
-            operationMap.put(middleNameInput, (self) -> student.setMiddleName(((TextField)self).getText()));
-            operationMap.put(doaInput, (self) -> {
+            operationMap.put(firstNameInput, (self) -> {
                 String input = ((TextField)self).getText();
+                if(input.equals("")) return;
+                student.setFirstName(input);
+            });
+            operationMap.put(lastNameInput, (self) -> {
+                String input = ((TextField)self).getText();
+                if(input.equals("")) return;
+                student.setLastName(input);
+            });
+            operationMap.put(middleNameInput, (self) -> {
+                String input = ((TextField)self).getText();
+                if(input.equals("")) return;
+                student.setMiddleName(input);
+            });
+            operationMap.put(doaInput, (self) -> {
+                String input = ((DatePicker)self).getEditor().getText();
                 if(input.isEmpty()) {
                     doaPrompt.setText("");
                     return;
@@ -291,7 +248,7 @@ public class MainController {
                 }
             });
             operationMap.put(dobInput, (self) -> {
-                String input = ((TextField)self).getText();
+                String input = ((DatePicker)self).getEditor().getText();
                 if(input.isEmpty()) {
                     dobPrompt.setText("");
                     return;
@@ -303,12 +260,12 @@ public class MainController {
                     dobPrompt.setText("invalid dob!");
                 }
             });
-            operationMap.put(mailingAddrMod, NO_OP); // handled by listener
-            operationMap.put(semesterMod, NO_OP); // handled by listener
             operationMap.put(enrollmentStatus, (self) -> {
                 var tmp = ((ChoiceBox<Pair<String, EnrollmentStatus>>) self).getValue();
                 student.setCurrentStatus((tmp == null) ? null : tmp.getValue());
             });
+            operationMap.put(mailingAddrMod, NO_OP); // handled by listener
+            operationMap.put(semesterMod, NO_OP); // handled by listener
             operationMap.put(emailAddrAdd, NO_OP); // handled by listener
             operationMap.put(emailAddrMod, NO_OP); // handled by listener
             operationMap.put(phoneNumAdd, NO_OP); // handled by listener
@@ -317,71 +274,76 @@ public class MainController {
 
         private void initUpdateMap() {
             updateMap.put(mailingAddrView, (self) -> {
-                final MailingAddress tmp = student.getMailingAddress();
-                ((Label)self).setText((tmp != null) ? tmp.toString() : "");
+                ((Label)self).setText(
+                        Optional.ofNullable(student.getMailingAddress()).map(MailingAddress::toString).orElse("-")
+                );
             });
             updateMap.put(semesterView, (self) -> {
-                final Semester tmp = student.getStartSemester();
-                ((Label)self).setText((tmp != null) ? tmp.toString() : "");
+                ((Label)self).setText(
+                        Optional.ofNullable(student.getStartSemester()).map((Semester::toString)).orElse("-")
+                );
             });
-            updateMap.put(rawView,
-                    (self) -> rawView.setText(StudentSerializationEngine.getInstance().serializeOne(student)));
-            updateMap.put(doaPrompt, NO_OP); // event based
-            updateMap.put(dobPrompt, NO_OP); // event based
-
+            updateMap.put(rawView, (self) -> rawView.setText(StudentSerializationEngine.getInstance().serializeOne(student)));
             updateMap.put(phoneNumberView, (self) -> {
-                var selfCasted = ((ChoiceBox<Pair<String, PhoneNumber>>) self);
-                selfCasted.getItems().setAll(
-                        (student.getPhoneNumbers() != null) ? student.getPhoneNumbers().stream()
-                                .map((v) -> new Pair<>("%d [%s]".formatted(v.getPhoneNum(), v.getType()), v))
-                                .collect(Collectors.toList()) : List.of());
-
-                if(selfCasted.getItems().size() > 0) selfCasted.getSelectionModel().select(0);
+                var selfCasted = ((ListView<PhoneNumber>) self);
+                Optional.ofNullable(student.getPhoneNumbers()).ifPresent((numbers) -> {
+                    selfCasted.getItems().setAll(numbers);
+                    if(selfCasted.getItems().size() > 0) selfCasted.getSelectionModel().select(0);
+                });
             });
             updateMap.put(emailAddressView, (self) -> {
-                var selfCasted = ((ChoiceBox<Pair<String, EmailAddress>>) self);
-                selfCasted.getItems().setAll(
-                        (student.getEmailAddresses() != null) ? student.getEmailAddresses().stream()
-                                .map((v) -> new Pair<>("%s [%s]".formatted(v.geteAddr(), v.getType()), v))
-                                .collect(Collectors.toList()) : List.of());
-                if(selfCasted.getItems().size() > 0) selfCasted.getSelectionModel().select(0);
+                var selfCasted = ((ListView<EmailAddress>) self);
+                Optional.ofNullable(student.getEmailAddresses()).ifPresent((emails) -> {
+                    selfCasted.getItems().setAll(emails);
+                    if(selfCasted.getItems().size() > 0) selfCasted.getSelectionModel().select(0);
+                });
             });
             updateMap.put(firstNameInput, (self) -> {
-                final String firstName = student.getFirstName();
-                ((TextField) self).setText((firstName == null) ? "" : firstName);
+                ((TextField) self).setText(
+                        Optional.ofNullable(student.getFirstName()).orElse("")
+                );
             });
             updateMap.put(lastNameInput, (self) -> {
-                final String lastName = student.getLastName();
-                ((TextField) self).setText((lastName == null) ? "" : lastName);
+                ((TextField) self).setText(
+                        Optional.ofNullable(student.getLastName()).orElse("")
+                );
             });
             updateMap.put(middleNameInput, (self) -> {
-                final String middleName = student.getMiddleName();
-                ((TextField) self).setText((middleName == null) ? "" : middleName);
+                ((TextField) self).setText(
+                        Optional.ofNullable(student.getMiddleName()).orElse("")
+                );
             });
             updateMap.put(doaInput, (self) -> {
-                final LocalDate doa = student.getDoa();
-                ((TextField) self).setText((doa == null) ? "" : Util.date2str(doa));
+                ((DatePicker) self).getEditor().setText(
+                        Optional.ofNullable(student.getDoa()).map(Util::date2str).orElse("")
+                );
             });
             updateMap.put(dobInput, (self) -> {
-                final LocalDate dob = student.getDoa();
-                ((TextField) self).setText((dob == null) ? "" : Util.date2str(dob));
+                ((DatePicker) self).getEditor().setText(
+                        Optional.ofNullable(student.getDob()).map(Util::date2str).orElse("")
+                );
             });
+            updateMap.put(idView, (self) -> {
+                ((Label) self).setText(
+                        Optional.ofNullable(student.getId()).map(Objects::toString).orElse("")
+                );
+            });
+            updateMap.put(doaPrompt, NO_OP); // event based
+            updateMap.put(dobPrompt, NO_OP); // event based
         }
 
         public void setupEditor(Student stu2e) {
             if(student != null) destroyEditor();
 
-            boolean isNewStudent = (stu2e.getId() == null);
-            this.student = stu2e;
+            if((stu2e.getId() == null))
+                this.student = Util.cloneStudent(stu2e);
+            else
+                this.student = stu2e;
 
-            idView.setText((isNewStudent) ? "TBA" : String.valueOf(stu2e.getId()));
             updateViewableComponents();
-
-            this.container.setVisible(true);
-
-            autoSaveTimer.play();
-
             setReadOnly();
+            autoSaveTimer.play();
+            this.container.setVisible(true);
         }
 
         public boolean destroyEditor() {
@@ -401,6 +363,7 @@ public class MainController {
             this.updateMap.keySet().forEach((component) -> {
                 if(component instanceof Label) ((Label) component).setText("");
                 if(component instanceof ChoiceBox) ((ChoiceBox) component).getItems().clear();
+                if(component instanceof ListView) ((ListView) component).getItems().clear();
             });
 
             this.container.setVisible(false);
@@ -438,7 +401,7 @@ public class MainController {
             return student;
         }
 
-        public void showMailingAddresssForm() {// event based update
+        public void showMailingAddressForm() {// event based update
             Optional<MailingAddress> input = new MailingAddressForm().showAndWait();
 
             input.ifPresent((addr) -> {
@@ -466,7 +429,7 @@ public class MainController {
                 return;
             }
 
-            var email2r = emailAddressView.getValue().getValue();
+            var email2r = emailAddressView.getSelectionModel().getSelectedItem();
 
             showEmailAddressForm(() ->
                 student.getEmailAddresses()
@@ -508,7 +471,7 @@ public class MainController {
                 return;
             }
 
-            var num2r = phoneNumberView.getValue().getValue();
+            var num2r = phoneNumberView.getSelectionModel().getSelectedItem();
 
             showPhoneNumberForm(() ->
                     student.getPhoneNumbers()

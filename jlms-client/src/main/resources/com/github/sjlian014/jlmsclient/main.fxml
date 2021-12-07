@@ -35,11 +35,13 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.ChoiceBox?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ListView?>
 <?import javafx.scene.control.Menu?>
 <?import javafx.scene.control.MenuBar?>
 <?import javafx.scene.control.MenuItem?>
+<?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.SeparatorMenuItem?>
 <?import javafx.scene.control.SplitPane?>
 <?import javafx.scene.control.TextArea?>
@@ -115,12 +117,6 @@
                <items>
             <AnchorPane id="Content" minHeight="-1.0" minWidth="-1.0">
               <children>
-                        <ToolBar prefHeight="40.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
-                           <items>
-                              <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#editorToggleReadOnly" text="🔒 / 🔓" />
-                              <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#postStudent" text="Save" />
-                           </items>
-                        </ToolBar>
                 <Label alignment="CENTER" layoutX="14.0" layoutY="14.0" style="&#10;" text="Editor" textAlignment="CENTER" wrapText="false">
                            <font>
                       <Font size="18.0" fx:id="x1" />
@@ -131,9 +127,9 @@
                         </Label>
                         <GridPane alignment="CENTER" hgap="10.0" layoutY="40.0" vgap="10.0" AnchorPane.bottomAnchor="40.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="40.0">
                           <columnConstraints>
-                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="197.0" minWidth="10.0" percentWidth="40.0" prefWidth="94.0" />
-                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="362.0" minWidth="10.0" prefWidth="316.0" />
-                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="362.0" minWidth="60.0" percentWidth="10.0" prefWidth="316.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" percentWidth="30.0" />
+                            <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" percentWidth="10.0" />
                           </columnConstraints>
                           <rowConstraints>
                               <RowConstraints maxHeight="1.7976931348623157E308" minHeight="45.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
@@ -145,13 +141,19 @@
                               <RowConstraints maxHeight="1.7976931348623157E308" minHeight="45.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="1.7976931348623157E308" minHeight="45.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="1.7976931348623157E308" minHeight="45.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="1.7976931348623157E308" minHeight="45.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
-                              <RowConstraints maxHeight="1.7976931348623157E308" minHeight="45.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="1.7976931348623157E308" minHeight="70.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="1.7976931348623157E308" minHeight="70.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
                           </rowConstraints>
                            <padding>
                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                            </padding>
                            <children>
+                              <ChoiceBox fx:id="editorPhoneNumbersCB" prefWidth="150.0" styleClass="button" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+                              <ScrollPane fitToHeight="true" fitToWidth="true" GridPane.columnIndex="1" GridPane.rowIndex="10">
+                                 <content>
+                                    <ListView fx:id="editorPhoneNumbersLV" maxWidth="1.7976931348623157E308" minHeight="80.0" prefHeight="70.0" />
+                                 </content>
+                              </ScrollPane>
                               <Label alignment="CENTER" text="First Name:" GridPane.halignment="RIGHT" GridPane.rowIndex="1">
                                  <font>
                                     <Font size="15.0" />
@@ -171,19 +173,17 @@
                                     <Font size="15.0" />
                                  </font>
                               </Label>
-                              <TextField fx:id="editorMiddleNameTF" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                              <TextField fx:id="editorMiddleNameTF" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="3" />
                               <Label alignment="CENTER" text="Date of Birth:" GridPane.halignment="RIGHT" GridPane.rowIndex="4">
                                  <font>
                                     <Font size="15.0" />
                                  </font>
                               </Label>
-                              <TextField fx:id="editorDobTF" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                               <Label alignment="CENTER" text="Date of Acceptence:" GridPane.halignment="RIGHT" GridPane.rowIndex="5">
                                  <font>
                                     <Font size="15.0" />
                                  </font>
                               </Label>
-                              <TextField fx:id="editorDoaTF" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                               <Label alignment="CENTER" text="Mailing Address:" GridPane.halignment="RIGHT" GridPane.rowIndex="6">
                                  <font>
                                     <Font size="15.0" />
@@ -225,27 +225,42 @@
                                     <Button fx:id="editorAddEmailAddressButton" mnemonicParsing="false" onAction="#editorAddEmailAddress" text="+" />
                                  </children>
                               </FlowPane>
-                              <ChoiceBox fx:id="editorEmailAddressesCB" prefWidth="150.0" styleClass="button" GridPane.columnIndex="1" GridPane.rowIndex="9" />
                               <Label alignment="CENTER" text="Phone Numbers:" GridPane.halignment="RIGHT" GridPane.rowIndex="10">
                                  <font>
                                     <Font size="15.0" />
                                  </font>
                               </Label>
-                              <ChoiceBox fx:id="editorPhoneNumbersCB" prefWidth="150.0" styleClass="button" GridPane.columnIndex="1" GridPane.rowIndex="10" />
                               <FlowPane hgap="5.0" vgap="5.0" GridPane.columnIndex="2" GridPane.rowIndex="10">
                                  <children>
                                     <Button fx:id="editorModifyPhoneNumberButton" mnemonicParsing="false" onAction="#editorModifyPhoneNumber" text="✎" />
                                     <Button fx:id="editorAddPhoneNumberButton" mnemonicParsing="false" onAction="#editorAddPhoneNumber" text="+" />
                                  </children>
                               </FlowPane>
+                              <ScrollPane fitToHeight="true" fitToWidth="true" GridPane.columnIndex="1" GridPane.rowIndex="9">
+                                 <content>
+                                    <ListView fx:id="editorEmailAddressesLV" minHeight="70.0" prefHeight="70.0" />
+                                 </content>
+                              </ScrollPane>
+                              <DatePicker fx:id="editorDoaDP" prefHeight="24.0" prefWidth="1000.0" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="5">
+                                 <GridPane.margin>
+                                    <Insets />
+                                 </GridPane.margin>
+                              </DatePicker>
+                              <DatePicker fx:id="editorDobDP" prefHeight="24.0" prefWidth="1000.0" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="4" />
                            </children>
                         </GridPane>
+                        <ToolBar prefHeight="40.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
+                           <items>
+                              <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#editorToggleReadOnly" text="🔒 / 🔓" />
+                              <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#postStudent" text="Save" />
+                           </items>
+                        </ToolBar>
               </children>
             </AnchorPane>
               <AnchorPane>
                 <children>
                   <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;" text="Raw" textAlignment="CENTER" textFill="$x2" wrapText="false" />
-                        <TextArea fx:id="rawTextArea" editable="false" layoutX="11.0" layoutY="44.0" prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="40.0" />
+                        <TextArea fx:id="rawTextArea" editable="false" focusTraversable="false" layoutX="11.0" layoutY="44.0" prefHeight="200.0" prefWidth="200.0" styleClass="button" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="40.0" />
                 </children>
               </AnchorPane>
                </items>

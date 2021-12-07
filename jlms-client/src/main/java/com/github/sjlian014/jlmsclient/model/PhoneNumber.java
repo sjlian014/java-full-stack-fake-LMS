@@ -32,4 +32,8 @@ public class PhoneNumber {
         this.phoneNumType = type;
     }
 
+    @Override
+    public String toString() {
+        return "%d [%s]".formatted(phoneNum, phoneNumType.name());
+    }
 }

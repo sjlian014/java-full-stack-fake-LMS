@@ -34,10 +34,7 @@ public class EmailAddress {
 
     @Override
     public String toString() {
-        return "EmailAddress{" +
-                "emailAddress='" + emailAddress + '\'' +
-                ", emailAddressType=" + emailAddressType +
-                '}';
+        return "%s [%s]".formatted(emailAddress, emailAddressType.name());
     }
 
 }
