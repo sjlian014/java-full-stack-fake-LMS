@@ -9,14 +9,16 @@ import java.util.stream.Collectors;
 
 public class ChoiceBoxUtil {
 
-    public static <E> ChoiceBox<Pair<String, E>> mapEnum(E[] instances) {
+    public static <E extends Enum<E>> ChoiceBox<Pair<String, E>> mapEnum(Class<E> type) {
         ChoiceBox<Pair<String, E>> choiceBox = new ChoiceBox<>();
-        mapEnum(instances, choiceBox);
+
+        mapEnum(type, choiceBox);
+
         return choiceBox;
     }
 
-    public static <E> void mapEnum(E[] instances, ChoiceBox<Pair<String, E>> target) {
-        target.getItems().addAll(Arrays.stream(instances)
+    public static <E extends Enum<E>> void mapEnum(Class<E> enumType, ChoiceBox<Pair<String, E>> target) {
+        target.getItems().addAll(Arrays.stream(enumType.getEnumConstants())
                 .map((v) -> new Pair<>(v.toString(), v))
                 .collect(Collectors.toList()));
         target.setConverter(getCommonPairConverter());

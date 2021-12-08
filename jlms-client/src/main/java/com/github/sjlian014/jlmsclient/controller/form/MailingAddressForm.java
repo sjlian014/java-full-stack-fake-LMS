@@ -6,6 +6,7 @@ import javafx.scene.control.*;
 import javafx.util.Pair;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class MailingAddressForm extends BasicForm<MailingAddress> {
@@ -23,7 +24,7 @@ public class MailingAddressForm extends BasicForm<MailingAddress> {
         city = new TextField();
         state = new TextField();
         zip = new TextField();
-        addressType = ChoiceBoxUtil.mapEnum(MailingAddress.AddrType.values());
+        addressType = ChoiceBoxUtil.mapEnum(MailingAddress.AddrType.class);
 
         addRow(street, "Street: ");
         addRow(city, "City: ");
@@ -41,5 +42,27 @@ public class MailingAddressForm extends BasicForm<MailingAddress> {
                 (address) -> address.setZip(Integer.parseInt(zip.getText())),
                 (address) -> address.setType(addressType.getValue().getValue())
         );
+    }
+
+    @Override
+    public void readInitialValue(MailingAddress initialValue) {
+        street.setText(Optional.ofNullable(initialValue.getStreet()).orElse(""));
+        city.setText(Optional.ofNullable(initialValue.getCity()).orElse(""));
+        state.setText(Optional.ofNullable(initialValue.getState()).orElse(""));
+        zip.setText(Optional.ofNullable(initialValue.getZip()).map((zip) -> "" + zip).orElse(""));
+        Optional.ofNullable(initialValue.getType()).ifPresentOrElse((v) -> {
+            addressType.getItems().stream().filter(pair -> pair.getValue() == v).findFirst().ifPresent(match -> {
+                addressType.getSelectionModel().select(match);
+            });
+        }, () -> addressType.getSelectionModel().clearSelection());
+    }
+
+    @Override
+    public void clearComponents() {
+        street.clear();
+        city.clear();
+        state.clear();
+        zip.clear();
+        addressType.getSelectionModel().clearSelection();
     }
 }

@@ -108,7 +108,8 @@
                      <items>
                         <Button fx:id="newButton" mnemonicParsing="false" onAction="#editNewStudent" text="+" />
                         <Button mnemonicParsing="false" onAction="#syncAllStudents" text="⟳" />
-                        <TextField />
+                        <TextField fx:id="searchBarTF" />
+                        <Button mnemonicParsing="false" onAction="#applyStudentFilter" text="🔍" />
                      </items>
                   </ToolBar>
                </children>
@@ -129,7 +130,7 @@
                           <columnConstraints>
                             <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" percentWidth="30.0" />
                             <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" />
-                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" percentWidth="10.0" />
+                              <ColumnConstraints hgrow="SOMETIMES" maxWidth="1.7976931348623157E308" percentWidth="15.0" />
                           </columnConstraints>
                           <rowConstraints>
                               <RowConstraints maxHeight="1.7976931348623157E308" minHeight="45.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
@@ -200,14 +201,12 @@
                                  </font>
                               </Label>
                               <Label fx:id="mailingAddressLabel" styleClass="label-unmodifiable-property" text="None" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-                              <Button fx:id="editorModifyMailingAddressButton" mnemonicParsing="false" onAction="#editorModifyMailingAddress" text="✎" GridPane.columnIndex="2" GridPane.halignment="LEFT" GridPane.rowIndex="6" />
                               <Label alignment="CENTER" text="Start Semester:" GridPane.halignment="RIGHT" GridPane.rowIndex="7">
                                  <font>
                                     <Font size="15.0" />
                                  </font>
                               </Label>
                               <Label fx:id="semesterLabel" styleClass="label-unmodifiable-property" text="None" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-                              <Button fx:id="editorModifySemesterButton" mnemonicParsing="false" onAction="#editorModifySemester" text="✎" GridPane.columnIndex="2" GridPane.rowIndex="7" />
                               <Label alignment="CENTER" text="Enrollment Status:" GridPane.halignment="RIGHT" GridPane.rowIndex="8">
                                  <font>
                                     <Font size="15.0" />
@@ -219,10 +218,11 @@
                                     <Font size="15.0" />
                                  </font>
                               </Label>
-                              <FlowPane hgap="5.0" prefHeight="200.0" prefWidth="200.0" vgap="5.0" GridPane.columnIndex="2" GridPane.rowIndex="9">
+                              <FlowPane hgap="3.0" prefHeight="200.0" prefWidth="200.0" vgap="3.0" GridPane.columnIndex="2" GridPane.rowIndex="9">
                                  <children>
-                                    <Button fx:id="editorModifyEmailAddressButton" mnemonicParsing="false" onAction="#editorModifyEmailAddress" text="✎" />
                                     <Button fx:id="editorAddEmailAddressButton" mnemonicParsing="false" onAction="#editorAddEmailAddress" text="+" />
+                                    <Button fx:id="editorModifyEmailAddressButton" mnemonicParsing="false" onAction="#editorModifyEmailAddress" text="✎" />
+                                    <Button fx:id="editorDeleteEmailAddressButton" mnemonicParsing="false" onAction="#editorDeleteEmailAddress" text="⌫" />
                                  </children>
                               </FlowPane>
                               <Label alignment="CENTER" text="Phone Numbers:" GridPane.halignment="RIGHT" GridPane.rowIndex="10">
@@ -230,10 +230,11 @@
                                     <Font size="15.0" />
                                  </font>
                               </Label>
-                              <FlowPane hgap="5.0" vgap="5.0" GridPane.columnIndex="2" GridPane.rowIndex="10">
+                              <FlowPane hgap="3.0" vgap="3.0" GridPane.columnIndex="2" GridPane.rowIndex="10">
                                  <children>
-                                    <Button fx:id="editorModifyPhoneNumberButton" mnemonicParsing="false" onAction="#editorModifyPhoneNumber" text="✎" />
                                     <Button fx:id="editorAddPhoneNumberButton" mnemonicParsing="false" onAction="#editorAddPhoneNumber" text="+" />
+                                    <Button fx:id="editorModifyPhoneNumberButton" mnemonicParsing="false" onAction="#editorModifyPhoneNumber" text="✎" />
+                                    <Button fx:id="editorDeletePhoneNumberButton" mnemonicParsing="false" onAction="#editorDeletePhoneNumber" text="⌫" />
                                  </children>
                               </FlowPane>
                               <ScrollPane fitToHeight="true" fitToWidth="true" GridPane.columnIndex="1" GridPane.rowIndex="9">
@@ -247,11 +248,23 @@
                                  </GridPane.margin>
                               </DatePicker>
                               <DatePicker fx:id="editorDobDP" prefHeight="24.0" prefWidth="1000.0" styleClass="text-field" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                              <FlowPane hgap="3.0" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="7">
+                                 <children>
+                                    <Button fx:id="editorModifySemesterButton" mnemonicParsing="false" onAction="#editorModifySemester" text="✎" />
+                                    <Button fx:id="editorDeleteSemesterButton" mnemonicParsing="false" onAction="#editorDeleteSemester" text="⌫" />
+                                 </children>
+                              </FlowPane>
+                              <FlowPane hgap="3.0" prefHeight="200.0" prefWidth="200.0" vgap="3.0" GridPane.columnIndex="2" GridPane.rowIndex="6">
+                                 <children>
+                                    <Button fx:id="editorModifyMailingAddressButton" mnemonicParsing="false" onAction="#editorModifyMailingAddress" text="✎" />
+                                    <Button fx:id="editorDeleteMailingAddressButton" mnemonicParsing="false" onAction="#editorDeleteMailingAddress" text="⌫" />
+                                 </children>
+                              </FlowPane>
                            </children>
                         </GridPane>
                         <ToolBar prefHeight="40.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                            <items>
-                              <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#editorToggleReadOnly" text="🔒 / 🔓" />
+                              <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#editorToggleReadOnly" text="🔒" />
                               <Button alignment="CENTER_RIGHT" mnemonicParsing="false" onAction="#postStudent" text="Save" />
                            </items>
                         </ToolBar>
@@ -260,7 +273,7 @@
               <AnchorPane>
                 <children>
                   <Label alignment="CENTER" font="$x1" layoutX="14.0" layoutY="14.0" style="&#10;" text="Raw" textAlignment="CENTER" textFill="$x2" wrapText="false" />
-                        <TextArea fx:id="rawTextArea" editable="false" focusTraversable="false" layoutX="11.0" layoutY="44.0" prefHeight="200.0" prefWidth="200.0" styleClass="button" AnchorPane.bottomAnchor="10.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="40.0" />
+                        <TextArea fx:id="rawTextArea" editable="false" focusTraversable="false" layoutX="11.0" layoutY="44.0" prefHeight="200.0" prefWidth="300.0" styleClass="button" AnchorPane.bottomAnchor="50.0" AnchorPane.leftAnchor="10.0" AnchorPane.rightAnchor="10.0" AnchorPane.topAnchor="40.0" />
                 </children>
               </AnchorPane>
                </items>

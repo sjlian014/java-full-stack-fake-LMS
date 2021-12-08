@@ -17,6 +17,11 @@ public class ConfirmDialogBuilder {
         confirmDialog = alert2c;
     }
 
+    public ConfirmDialogBuilder setAlertType(Alert.AlertType type){
+        confirmDialog.setAlertType(type);
+        return new ConfirmDialogBuilder(confirmDialog);
+    }
+
     public ConfirmDialogBuilder setTitle(String title) {
          confirmDialog.setTitle(title);
          return new ConfirmDialogBuilder(confirmDialog);

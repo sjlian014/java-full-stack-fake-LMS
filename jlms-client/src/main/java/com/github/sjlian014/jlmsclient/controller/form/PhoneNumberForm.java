@@ -7,6 +7,7 @@ import javafx.scene.control.TextField;
 import javafx.util.Pair;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.function.Consumer;
 
 public class PhoneNumberForm extends BasicForm<PhoneNumber> {
@@ -18,8 +19,7 @@ public class PhoneNumberForm extends BasicForm<PhoneNumber> {
         super("Modify Phone Number", PhoneNumber::new);
 
         phoneNumber = new TextField();
-        phoneNumber.setPromptText("phone number");
-        phoneNumberType = ChoiceBoxUtil.mapEnum(PhoneNumber.PhoneNumberType.values());
+        phoneNumberType = ChoiceBoxUtil.mapEnum(PhoneNumber.PhoneNumberType.class);
 
         addRow(phoneNumber, "Phone Number: ");
         addRow(phoneNumberType, "Phone Number Type: ");
@@ -31,5 +31,21 @@ public class PhoneNumberForm extends BasicForm<PhoneNumber> {
                 (number) -> number.setPhoneNum(Integer.parseInt(phoneNumber.getText())),
                 (number) -> number.setType(phoneNumberType.getValue().getValue())
         );
+    }
+
+    @Override
+    public void readInitialValue(PhoneNumber initialValue) {
+        phoneNumber.setText(Optional.ofNullable(initialValue.getPhoneNum()).map(v -> "" + v).orElse(""));
+        Optional.ofNullable(initialValue.getType()).ifPresentOrElse((v) -> {
+            phoneNumberType.getItems().stream().filter(pair -> pair.getValue() == v).findFirst().ifPresent(match -> {
+                phoneNumberType.getSelectionModel().select(match);
+            });
+        }, () -> phoneNumberType.getSelectionModel().clearSelection());
+    }
+
+    @Override
+    public void clearComponents() {
+        phoneNumber.clear();
+        phoneNumberType.getSelectionModel().clearSelection();
     }
 }

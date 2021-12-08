@@ -11,8 +11,14 @@ import com.github.sjlian014.jlmsclient.restclient.StudentSerializationEngine;
 import com.github.sjlian014.jlmsclient.service.StudentService;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
+import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
+import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.collections.transformation.FilteredList;
 import javafx.event.ActionEvent;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
@@ -20,16 +26,17 @@ import javafx.scene.control.*;
 import javafx.util.Duration;
 import javafx.util.Pair;
 
-import java.time.LocalDate;
 import java.util.*;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 public class MainController {
 
-    private StudentService source;
+
+    // ----------- UI/Control ------------
     @FXML private ListView<Student> studentListView;
+    @FXML private TextField searchBarTF;
     @FXML private SplitPane editorPane;
     @FXML private TextArea rawTextArea;
     @FXML private TextField editorFirstNameTF, editorLastNameTF, editorMiddleNameTF;
@@ -38,18 +45,32 @@ public class MainController {
     @FXML private Label dobPromptLabel, doaPromptLabel;
     @FXML private Label mailingAddressLabel, semesterLabel;
     @FXML private Button editorModifyMailingAddressButton, editorModifySemesterButton, editorModifyEmailAddressButton,
-            editorAddEmailAddressButton, editorModifyPhoneNumberButton, editorAddPhoneNumberButton;
+            editorAddEmailAddressButton, editorModifyPhoneNumberButton, editorAddPhoneNumberButton,
+            editorDeleteMailingAddressButton, editorDeleteSemesterButton, editorDeleteEmailAddressButton,
+            editorDeletePhoneNumberButton;
     @FXML private ChoiceBox<Pair<String, EnrollmentStatus>> editorEnrollmentCB;
-
     @FXML private ListView<EmailAddress> editorEmailAddressesLV;
     @FXML private ListView<PhoneNumber> editorPhoneNumbersLV;
-
     @FXML private  Label leftStatus;
 
-    Editor editor;
+    Editor editor; // manage editor controls
+
+    // ----------- data --------------
+    private StudentService source; // data source
+
+    private ObjectProperty<ObservableList<Student>> students;
+    private ReadOnlyObjectProperty<FilteredList<Student>> viewableStudents;
+    ObjectProperty<Predicate<? super Student>> listFilter;
+
 
     public void initialize() {
-        source = new StudentService(studentListView.itemsProperty());
+        // viewableStudents.get().add(new Student());
+//        source = new StudentService(studentListView.itemsProperty());
+        students = new SimpleObjectProperty<>(FXCollections.observableArrayList()); // full list of student
+        source = new StudentService(students);
+
+        viewableStudents = new SimpleObjectProperty<>(new FilteredList<>(students.get())); // the actual list that will be shown, after a filter is applied
+        listFilter = viewableStudents.get().predicateProperty(); // the filter
         editor = new Editor();
 
         studentListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Student>() {
@@ -60,6 +81,8 @@ public class MainController {
                 }
             }
         });
+
+        studentListView.itemsProperty().bind(viewableStudents);
 
         syncAllStudents();
     }
@@ -101,13 +124,33 @@ public class MainController {
     }
 
     @FXML
+    private void applyStudentFilter() {
+
+        listFilter.set((student) -> {
+            if(searchBarTF.getText().isBlank()) return true;
+            return student.getFirstName().equals(searchBarTF.getText());
+        });
+    }
+
+
+    @FXML
     private void editorModifyMailingAddress() {
         editor.showMailingAddressForm();
     }
 
     @FXML
+    private void editorDeleteMailingAddress() {
+        editor.deleteCurrentMailingAddress();
+    }
+
+    @FXML
     private void editorModifySemester() {
         editor.showSemesterForm();
+    }
+
+    @FXML
+    private void editorDeleteSemester() {
+        editor.deleteCurrentSemester();
     }
 
     @FXML
@@ -121,6 +164,11 @@ public class MainController {
     }
 
     @FXML
+    private void editorDeleteEmailAddress() {
+        editor.deleteCurrentEmailAddress();
+    }
+
+    @FXML
     private void editorModifyPhoneNumber() {
         editor.showPhoneNumberFormReplace();
     }
@@ -128,6 +176,11 @@ public class MainController {
     @FXML
     private void editorAddPhoneNumber() {
         editor.showPhoneNumberFormNew();
+    }
+
+    @FXML
+    private void editorDeletePhoneNumber() {
+        editor.deleteCurrentPhoneNumber();
     }
 
     // a collection of methods used for the editor pane and the element within
@@ -141,7 +194,8 @@ public class MainController {
         private final Label idView;
         private final Label mailingAddrView, semesterView;
         private final TextArea rawView;
-        private final Button mailingAddrMod, semesterMod, emailAddrAdd, emailAddrMod, phoneNumAdd, phoneNumMod;
+        private final Button mailingAddrMod, mailingAddrDel, semesterMod, semesterDel, emailAddrAdd, emailAddrMod,
+                emailAddrDel, phoneNumAdd, phoneNumMod, phoneNumDel;
         private final ChoiceBox<Pair<String, EnrollmentStatus>> enrollmentStatus;
         // private final ChoiceBox<Pair<String, EmailAddress>> emailAddressView;
         private final ListView<EmailAddress> emailAddressView;
@@ -154,6 +208,10 @@ public class MainController {
         // updateMap: viewable -> function that takes that viewable and specifies how to update it
         private final HashMap<Control, Consumer<Control>> updateMap;
         private final Consumer<Control> NO_OP = (_ignore) -> {}; // TODO eliminate all occurrence of NO_OP
+
+        // forms for aggregate types of student
+        private FormBuilder<EmailAddress, EmailAddressForm> emailAddressFormCommon;
+        private FormBuilder<PhoneNumber, PhoneNumberForm> phoneNumberFormCommon;
 
         // editor state
         private Student student;
@@ -177,13 +235,17 @@ public class MainController {
 
             // clickables
             this.enrollmentStatus = editorEnrollmentCB;
-            ChoiceBoxUtil.mapEnum(EnrollmentStatus.values(), enrollmentStatus);
+            ChoiceBoxUtil.mapEnum(EnrollmentStatus.class, enrollmentStatus);
             this.mailingAddrMod = editorModifyMailingAddressButton;
+            this.mailingAddrDel = editorDeleteMailingAddressButton;
             this.semesterMod = editorModifySemesterButton;
+            this.semesterDel = editorDeleteSemesterButton;
             this.phoneNumAdd = editorAddPhoneNumberButton;
             this.phoneNumMod = editorModifyPhoneNumberButton;
+            this.phoneNumDel = editorDeletePhoneNumberButton;
             this.emailAddrAdd = editorAddEmailAddressButton;
             this.emailAddrMod = editorModifyEmailAddressButton;
+            this.emailAddrDel = editorDeleteEmailAddressButton;
 
 
             // ---------------- viewables -------------------
@@ -205,6 +267,7 @@ public class MainController {
             updateMap = new HashMap<>();
             initUpdateMap();
 
+
             // interval timer to update viewables (with polling)
             autoSaveTimer = new Timeline(
                     new KeyFrame(Duration.seconds(1),
@@ -218,21 +281,31 @@ public class MainController {
             autoSaveTimer.setCycleCount(Timeline.INDEFINITE);
         }
 
+        private void createCommonFormTemplates() {
+
+            emailAddressFormCommon = FormBuilder.buildA(new EmailAddressForm())
+                    .useListTypeSetter(student::setEmailAddresses)
+                    .useGetter(student::getEmailAddresses)
+                    .onSucceed(() -> applyUpdate(emailAddressView));
+
+            phoneNumberFormCommon = FormBuilder.buildA(new PhoneNumberForm())
+                    .useListTypeSetter(student::setPhoneNumbers)
+                    .useGetter(student::getPhoneNumbers)
+                    .onSucceed(() -> applyUpdate(phoneNumberView));
+        }
+
         private void initOperationMap() {
             operationMap.put(firstNameInput, (self) -> {
                 String input = ((TextField)self).getText();
-                if(input.equals("")) return;
-                student.setFirstName(input);
+                student.setFirstName((input.equals("")) ? null : input);
             });
             operationMap.put(lastNameInput, (self) -> {
                 String input = ((TextField)self).getText();
-                if(input.equals("")) return;
-                student.setLastName(input);
+                student.setLastName((input.equals("")) ? null : input);
             });
             operationMap.put(middleNameInput, (self) -> {
                 String input = ((TextField)self).getText();
-                if(input.equals("")) return;
-                student.setMiddleName(input);
+                student.setMiddleName((input.equals("")) ? null : input);
             });
             operationMap.put(doaInput, (self) -> {
                 String input = ((DatePicker)self).getEditor().getText();
@@ -265,11 +338,15 @@ public class MainController {
                 student.setCurrentStatus((tmp == null) ? null : tmp.getValue());
             });
             operationMap.put(mailingAddrMod, NO_OP); // handled by listener
+            operationMap.put(mailingAddrDel, NO_OP); // handled by listener
             operationMap.put(semesterMod, NO_OP); // handled by listener
+            operationMap.put(semesterDel, NO_OP); // handled by listener
             operationMap.put(emailAddrAdd, NO_OP); // handled by listener
             operationMap.put(emailAddrMod, NO_OP); // handled by listener
+            operationMap.put(emailAddrDel, NO_OP); // handled by listener
             operationMap.put(phoneNumAdd, NO_OP); // handled by listener
             operationMap.put(phoneNumMod, NO_OP); // handled by listener
+            operationMap.put(phoneNumDel, NO_OP); // handled by listener
         }
 
         private void initUpdateMap() {
@@ -328,6 +405,13 @@ public class MainController {
                         Optional.ofNullable(student.getId()).map(Objects::toString).orElse("")
                 );
             });
+            updateMap.put(enrollmentStatus, (self) -> {
+                Optional.ofNullable(student.getCurrentStatus()).ifPresentOrElse((v) -> {
+                    enrollmentStatus.getItems().stream().filter(pair -> pair.getValue() == v).findFirst().ifPresent(match -> { // TODO generify this with self
+                        enrollmentStatus.getSelectionModel().select(match);
+                    });
+                }, () -> enrollmentStatus.getSelectionModel().clearSelection());
+            });
             updateMap.put(doaPrompt, NO_OP); // event based
             updateMap.put(dobPrompt, NO_OP); // event based
         }
@@ -342,6 +426,7 @@ public class MainController {
 
             updateViewableComponents();
             setReadOnly();
+            createCommonFormTemplates();
             autoSaveTimer.play();
             this.container.setVisible(true);
         }
@@ -362,7 +447,6 @@ public class MainController {
 
             this.updateMap.keySet().forEach((component) -> {
                 if(component instanceof Label) ((Label) component).setText("");
-                if(component instanceof ChoiceBox) ((ChoiceBox) component).getItems().clear();
                 if(component instanceof ListView) ((ListView) component).getItems().clear();
             });
 
@@ -393,7 +477,7 @@ public class MainController {
         }
 
         private void updateViewableComponents() {
-            updateMap.forEach((component, operation) -> operation.accept(component));
+            this.updateMap.forEach((component, operation) -> operation.accept(component));
         }
 
 
@@ -402,87 +486,89 @@ public class MainController {
         }
 
         public void showMailingAddressForm() {// event based update
-            Optional<MailingAddress> input = new MailingAddressForm().showAndWait();
+            FormBuilder.buildA(new MailingAddressForm())
+                    .useSetter(student::setMailingAddress)
+                    .useGetter(student::getMailingAddress)
+                    .onSucceed(() -> applyUpdate(mailingAddrView))
+                    .initialValue(Optional.ofNullable(student.getMailingAddress()).orElse(new MailingAddress()))
+                    .buildAndShow();
+        }
 
-            input.ifPresent((addr) -> {
-                student.setMailingAddress(addr);
-                applyUpdate(mailingAddrView);
-            });
+        public void deleteCurrentMailingAddress() {
+            student.setMailingAddress(null);
+            applyUpdate(mailingAddrView);
         }
 
         public void showSemesterForm() {// event based update
-            Optional<Semester> input = new SemesterAddressForm().showAndWait();
+            FormBuilder.buildA(new SemesterForm())
+                    .useGetter(student::getStartSemester)
+                    .useSetter(student::setStartSemester)
+                    .onSucceed(() -> applyUpdate(semesterView))
+                    .initialValue(Optional.ofNullable(student.getStartSemester()).orElse(new Semester()))
+                    .buildAndShow();
+        }
 
-            input.ifPresent((semester) -> {
-                student.setStartSemester(semester);
-                applyUpdate(semesterView);
-            });
+        public void deleteCurrentSemester() {
+            student.setStartSemester(null);
+            applyUpdate(semesterView);
         }
 
         public void showEmailAddressFormNew() {
-            showEmailAddressForm(() -> student.getEmailAddresses());
+            emailAddressFormCommon
+                    .useListTypeSetterStrategy(FormBuilder.ListSetterStrategy.APPEND)
+                    .initialValue(new EmailAddress())
+                    .buildAndShow();
         }
 
         public void showEmailAddressFormReplace() {
-            if(emailAddressView.getSelectionModel().getSelectedItem() == null) {
-                leftStatus.setText("no email selected.");
-                return;
-            }
-
-            var email2r = emailAddressView.getSelectionModel().getSelectedItem();
-
-            showEmailAddressForm(() ->
-                student.getEmailAddresses()
-                        .stream()
-                        .filter((v) -> v != email2r)
-                        .collect(Collectors.toList())
-            );
+            Optional.ofNullable(emailAddressView.getSelectionModel().getSelectedItem()).ifPresentOrElse((selected) -> {
+                emailAddressFormCommon
+                        .useListTypeSetterStrategy(FormBuilder.ListSetterStrategy.REPLACE)
+                        .replace(selected)
+                        .initialValue(selected)
+                        .buildAndShow();
+            }, () -> leftStatus.setText("no email selected."));
         }
 
-        private void showEmailAddressForm(Supplier<List<EmailAddress>> listBuildStrategy) {
-            Optional<EmailAddress> input = new EmailAddressForm().showAndWait();
-
-            input.ifPresent((email) -> {
-                ArrayList<EmailAddress> tmp = new ArrayList<>();
-                if(student.getEmailAddresses() != null)
-                    tmp.addAll(listBuildStrategy.get());
-                tmp.add(email);
-                student.setEmailAddresses(tmp);
+        public void deleteCurrentEmailAddress() {
+            Optional.ofNullable(emailAddressView.getSelectionModel().getSelectedItem()).ifPresentOrElse((selected) -> {
+                student.setEmailAddresses(
+                        student.getEmailAddresses()
+                                .stream()
+                                .filter((v) -> v != selected)
+                                .collect(Collectors.toList())
+                );
                 applyUpdate(emailAddressView);
-            });
-        }
-
-        private void showPhoneNumberForm(Supplier<List<PhoneNumber>> listBuildStrategy) {
-            Optional<PhoneNumber> input = new PhoneNumberForm().showAndWait();
-
-            input.ifPresent((phoneNumber) -> {
-                ArrayList<PhoneNumber> tmp = new ArrayList<>();
-                if(student.getPhoneNumbers() != null)
-                    tmp.addAll(listBuildStrategy.get());
-                tmp.add(phoneNumber);
-                student.setPhoneNumbers(tmp);
-                applyUpdate(phoneNumberView);
-            });
+            }, () -> leftStatus.setText("no email selected."));
         }
 
         public void showPhoneNumberFormReplace() {
-            if(phoneNumberView.getSelectionModel().getSelectedItem() == null) {
-                leftStatus.setText("no phone number selected.");
-                return;
-            }
-
-            var num2r = phoneNumberView.getSelectionModel().getSelectedItem();
-
-            showPhoneNumberForm(() ->
-                    student.getPhoneNumbers()
-                            .stream()
-                            .filter((v) -> v != num2r)
-                            .collect(Collectors.toList())
-            );
+            Optional.ofNullable(phoneNumberView.getSelectionModel().getSelectedItem()).ifPresentOrElse((selected) -> {
+                phoneNumberFormCommon
+                        .useListTypeSetterStrategy(FormBuilder.ListSetterStrategy.REPLACE)
+                        .replace(selected)
+                        .initialValue(selected)
+                        .buildAndShow();
+            }, () -> leftStatus.setText("no phone number selected."));
         }
 
         public void showPhoneNumberFormNew() {
-            showPhoneNumberForm(() -> student.getPhoneNumbers());
+            phoneNumberFormCommon
+                    .useListTypeSetterStrategy(FormBuilder.ListSetterStrategy.APPEND)
+                    .initialValue(new PhoneNumber())
+                    .buildAndShow();
+        }
+
+        public void deleteCurrentPhoneNumber() {
+            Optional.ofNullable(phoneNumberView.getSelectionModel().getSelectedItem()).ifPresentOrElse((selected) -> {
+                student.setPhoneNumbers(
+                        student.getPhoneNumbers()
+                                .stream()
+                                .filter((v) -> v != selected)
+                                .collect(Collectors.toList())
+                );
+                applyUpdate(phoneNumberView);
+            }, () -> leftStatus.setText("no phone number selected."));
         }
 
         public void applyUpdate(Control component) {

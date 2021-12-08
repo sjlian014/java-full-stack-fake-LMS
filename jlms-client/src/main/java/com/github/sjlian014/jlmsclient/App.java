@@ -1,5 +1,6 @@
 package com.github.sjlian014.jlmsclient;
 
+import com.github.sjlian014.jlmsclient.Util.ChoiceBoxUtil;
 import com.github.sjlian014.jlmsclient.model.EmailAddress;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
@@ -41,6 +42,5 @@ public class App extends Application {
     public static void main(String[] args) throws Exception {
         launch();
     }
-
 
 }

@@ -22,7 +22,6 @@ public abstract class BasicForm<T> extends Dialog<T> {
     private final ButtonType confirmButtonType;
     private final Supplier<T> returnObjectInstantiationStrategy;
 
-
     protected BasicForm(String title, Supplier<T> returnObjectInstantiationStrategy) {
         this.returnObjectInstantiationStrategy = returnObjectInstantiationStrategy;
         // Set Confirm button and Cancel button
@@ -94,5 +93,8 @@ public abstract class BasicForm<T> extends Dialog<T> {
 
         alert.showAndWait();
     }
+
+    public abstract void readInitialValue(T initialValue);
+    public abstract void clearComponents();
 
 }
