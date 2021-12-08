@@ -5,10 +5,6 @@ import java.util.List;
 
 public class Student {
 
-    public enum Minor {
-        Minor1;
-    }
-
     public enum EnrollmentStatus {
         ENROLLED, NOT_ENROLLED, WITHDRAWN;
     }

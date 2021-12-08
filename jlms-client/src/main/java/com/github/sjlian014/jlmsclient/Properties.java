@@ -21,5 +21,7 @@ public final class Properties {
         public static final Duration TIMEOUT_DURATION = Duration.ofSeconds(5);
 
         public static final String STUDENT_ENDPOINT_PATH = "/students";
+        public static final String MAJOR_ENDPOINT_PATH = "/majors";
+        public static final String MINOR_ENDPOINT_PATH = "/minors";
     }
 }

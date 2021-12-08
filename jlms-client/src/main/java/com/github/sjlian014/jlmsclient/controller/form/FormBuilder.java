@@ -2,22 +2,20 @@ package com.github.sjlian014.jlmsclient.controller.form;
 
 import com.github.sjlian014.jlmsclient.exception.InternalDesignConstraintException;
 
-import java.nio.file.OpenOption;
-import java.text.Normalizer;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
 import java.util.function.Supplier;
 
-public class FormBuilder<T, F extends BasicForm<T>> {
+public class FormBuilder<I, T, F extends BasicForm<I, T>> {
 
     private final F form;
     private Consumer setter; // this could either consumer <T> or List<T> depending on the field
     private boolean isListSetter = false;
     private ListSetterStrategy setStrategy;
     private T thing2r;
-    private Optional<T> initialValue;
+    private Optional<I> initialValue;
     public enum ListSetterStrategy {
         APPEND, REPLACE;
     }
@@ -33,47 +31,47 @@ public class FormBuilder<T, F extends BasicForm<T>> {
         initialValue = Optional.empty();
     }
 
-    public  static <T2, F2 extends BasicForm<T2>> FormBuilder<T2, F2> buildA(F2 form) {
-        return new FormBuilder<T2, F2>(form);
+    public  static <I2, T2, F2 extends BasicForm<I2, T2>> FormBuilder<I2, T2, F2> buildA(F2 form) {
+        return new FormBuilder<I2, T2, F2>(form);
     }
 
-    public FormBuilder<T, F> useGetter(Supplier getter) {
+    public FormBuilder<I, T, F> useGetter(Supplier getter) {
         this.getter = getter;
         return this;
     }
 
-    public FormBuilder<T, F> useSetter(Consumer<T> setter) {
+    public FormBuilder<I, T, F> useSetter(Consumer<T> setter) {
         this.setter = setter;
         return this;
     };
 
-    public FormBuilder<T, F> useListTypeSetter(Consumer<List<T>> listSetter) {
+    public FormBuilder<I, T, F> useListTypeSetter(Consumer<List<T>> listSetter) {
         this.isListSetter = true;
         this.setter = listSetter;
         return this;
     }
 
-    public FormBuilder<T, F> useListTypeSetterStrategy(ListSetterStrategy strategy) {
+    public FormBuilder<I, T, F> useListTypeSetterStrategy(ListSetterStrategy strategy) {
         this.setStrategy = strategy;
         return this;
     }
 
-    public FormBuilder<T, F> replace(T thing2r) {
+    public FormBuilder<I, T, F> replace(T thing2r) {
         this.thing2r = thing2r;
         return this;
     }
 
-    public FormBuilder<T, F> onSucceed(Runnable onSucceedTask) {
+    public FormBuilder<I, T, F> onSucceed(Runnable onSucceedTask) {
         this.onSucceed = Optional.ofNullable(onSucceedTask);
         return this;
     }
 
-    public FormBuilder<T, F> onFailure(Runnable onFailureTask) {
+    public FormBuilder<I, T, F> onFailure(Runnable onFailureTask) {
         this.onSucceed = Optional.ofNullable(onFailureTask);
         return this;
     }
 
-    public FormBuilder<T, F> initialValue(T initialValue) {
+    public FormBuilder<I, T, F> initialValue(I initialValue) {
         this.initialValue = Optional.ofNullable(initialValue);
         return this;
     }
@@ -100,7 +98,7 @@ public class FormBuilder<T, F extends BasicForm<T>> {
         return flag.succeeded;
     }
 
-    private List<T> buildNewListBasedOnStrategy(T input) {
+    private  List<T> buildNewListBasedOnStrategy(T input) {
         var tmp = Optional.ofNullable((List<T>)getter.get()).orElse(List.of()).stream();
         tmp = switch (setStrategy) {
             case APPEND -> tmp;

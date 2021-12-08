@@ -1,35 +1,34 @@
 package com.github.sjlian014.jlmsclient.controller;
 
-import com.github.sjlian014.jlmsclient.Properties;
 import com.github.sjlian014.jlmsclient.Util.ChoiceBoxUtil;
+import com.github.sjlian014.jlmsclient.Util.StudentSearcher;
 import com.github.sjlian014.jlmsclient.Util.Util;
 import com.github.sjlian014.jlmsclient.controller.form.*;
 import com.github.sjlian014.jlmsclient.exception.InvalidDateException;
 import com.github.sjlian014.jlmsclient.model.*;
 import com.github.sjlian014.jlmsclient.model.Student.EnrollmentStatus;
 import com.github.sjlian014.jlmsclient.restclient.StudentSerializationEngine;
+import com.github.sjlian014.jlmsclient.service.MajorService;
+import com.github.sjlian014.jlmsclient.service.MinorService;
 import com.github.sjlian014.jlmsclient.service.StudentService;
-import javafx.animation.KeyFrame;
-import javafx.animation.Timeline;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
-import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.collections.transformation.FilteredList;
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
-import javafx.util.Duration;
 import javafx.util.Pair;
 
 import java.util.*;
 import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
+
+import static javafx.collections.FXCollections.observableArrayList;
 
 public class MainController {
 
@@ -41,13 +40,13 @@ public class MainController {
     @FXML private TextArea rawTextArea;
     @FXML private TextField editorFirstNameTF, editorLastNameTF, editorMiddleNameTF;
     @FXML private DatePicker editorDoaDP, editorDobDP;
-    @FXML private Label editorIDLabel;
     @FXML private Label dobPromptLabel, doaPromptLabel;
-    @FXML private Label mailingAddressLabel, semesterLabel;
+    @FXML private Label editorIDLabel, mailingAddressLabel, semesterLabel, editorMajorLabel, editorMinorLabel;
     @FXML private Button editorModifyMailingAddressButton, editorModifySemesterButton, editorModifyEmailAddressButton,
             editorAddEmailAddressButton, editorModifyPhoneNumberButton, editorAddPhoneNumberButton,
             editorDeleteMailingAddressButton, editorDeleteSemesterButton, editorDeleteEmailAddressButton,
-            editorDeletePhoneNumberButton;
+            editorDeletePhoneNumberButton, editorModifyMajorButton, editorDeleteMajorButton,
+            editorModifyMinorButton, editorDeleteMinorButton;
     @FXML private ChoiceBox<Pair<String, EnrollmentStatus>> editorEnrollmentCB;
     @FXML private ListView<EmailAddress> editorEmailAddressesLV;
     @FXML private ListView<PhoneNumber> editorPhoneNumbersLV;
@@ -56,9 +55,14 @@ public class MainController {
     Editor editor; // manage editor controls
 
     // ----------- data --------------
-    private StudentService source; // data source
+    private StudentService studentSource; // student data source
+    private MajorService majorSource; // major data source
+    private MinorService minorSource; // minor  data source
 
     private ObjectProperty<ObservableList<Student>> students;
+    private ObjectProperty<ObservableList<Major>> majors;
+    private ObjectProperty<ObservableList<Minor>> minors;
+
     private ReadOnlyObjectProperty<FilteredList<Student>> viewableStudents;
     ObjectProperty<Predicate<? super Student>> listFilter;
 
@@ -66,34 +70,83 @@ public class MainController {
     public void initialize() {
         // viewableStudents.get().add(new Student());
 //        source = new StudentService(studentListView.itemsProperty());
-        students = new SimpleObjectProperty<>(FXCollections.observableArrayList()); // full list of student
-        source = new StudentService(students);
+        students = new SimpleObjectProperty<>(observableArrayList()); // full list of student
+        studentSource = new StudentService(students);
 
-        viewableStudents = new SimpleObjectProperty<>(new FilteredList<>(students.get())); // the actual list that will be shown, after a filter is applied
-        listFilter = viewableStudents.get().predicateProperty(); // the filter
+        majors = new SimpleObjectProperty<>(observableArrayList());
+        majorSource = new MajorService(majors);
+
+        minors = new SimpleObjectProperty<>(observableArrayList());
+        minorSource = new MinorService(minors);
+
         editor = new Editor();
 
         studentListView.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<Student>() {
             @Override
             public void changed(ObservableValue<? extends Student> ov, Student oldValue, Student newValue) {
+                if(newValue != null) editor.setupEditor(newValue);
+/*
                 if(ov != null && ov.getValue() != null) {
                     editor.setupEditor(ov.getValue());
                 }
+*/
             }
         });
 
+        viewableStudents = new SimpleObjectProperty<>(new FilteredList<>(students.get())); // the actual list that will be shown, after a filter is applied
+        listFilter = viewableStudents.get().predicateProperty(); // the filter
         studentListView.itemsProperty().bind(viewableStudents);
 
-        syncAllStudents();
+        fetchFromServer();
+
     }
 
     @FXML
-    public void syncAllStudents() {
-        studentListView.setEditable(false);
-        leftStatus.setText("waiting for response from server[%s]...".formatted(Properties.RestClient.SERVER_URL));
-        editor.destroyEditor();
-        source.asyncGetAllStudents(()->{
-            studentListView.setEditable(false); leftStatus.setText("done.");});
+    public void fetchFromServer() {
+        var tasks = new Object() {
+            { onStart(); }
+            private int count = 3;
+
+            public int __count() {
+                if(count - 1 == 0) onDone();
+                return --count;
+            }
+
+            private void onStart() { // tasks start hook
+                editor.destroyEditor();
+                studentListView.setDisable(true);
+
+            }
+
+            private void onDone() { // tasks done hook
+                studentListView.setDisable(false);
+
+                majors.get().forEach(System.out::println);
+                minors.get().forEach(System.out::println);
+            };
+        };
+        Function<String, Runnable> onTaskDonePromptFactory = (taskName) -> {
+            return () -> {
+                int remainingTasks = tasks.__count();
+                leftStatus.setText(
+                    switch (remainingTasks) {
+                        case 0 -> "done.";
+                        case 1 -> "done %s... (%d task remaining)".formatted(taskName, remainingTasks);
+                        default -> "done %s... (%d tasks remaining)".formatted(taskName, remainingTasks);
+                    }
+                );
+            };
+        };
+
+
+        leftStatus.setText("attempting to fetch majors from server[%s]...".formatted(majorSource.getPathToURI()));
+        majorSource.asyncGetAll(onTaskDonePromptFactory.apply("fetching majors"));
+
+        leftStatus.setText("attempting to fetch minors from server[%s]...".formatted(minorSource.getPathToURI()));
+        minorSource.asyncGetAll(onTaskDonePromptFactory.apply("fetching minors"));
+
+        leftStatus.setText("attempting to fetch students from server[%s]...".formatted(studentSource.getPathToURI()));
+        studentSource.asyncGetAll(onTaskDonePromptFactory.apply("fetching students"));
     }
 
     @FXML
@@ -114,22 +167,24 @@ public class MainController {
         boolean input = new ConfirmDialogBuilder()
                 .setTitle("Confirm Action")
                 .setContentText("do you really want to save the student at its current state to server?")
-                .buildAndRun();
+                .buildAndShow();
 
         if(input) {
             editor.saveChangesLocally();
-            source.asyncPostStudent(editor.getCurrentStateOfStudent(), (_ignore) -> {});
-            syncAllStudents();
+            studentSource.asyncPostOne(editor.getCurrentStateOfStudent(), (_ignore) -> {});
+            fetchFromServer();
         }
     }
 
     @FXML
     private void applyStudentFilter() {
+        listFilter.set((student) -> StudentSearcher.matchStudent(student, searchBarTF.getText()));
+    }
 
-        listFilter.set((student) -> {
-            if(searchBarTF.getText().isBlank()) return true;
-            return student.getFirstName().equals(searchBarTF.getText());
-        });
+    @FXML
+    private void editorCommitChanges() {
+        editor.saveChangesLocally();
+        editor.updateViewableComponents();
     }
 
 
@@ -183,6 +238,26 @@ public class MainController {
         editor.deleteCurrentPhoneNumber();
     }
 
+    @FXML
+    private void editorModifyMajor() {
+        editor.showMajorForm();
+    }
+
+    @FXML
+    private void editorDeleteMajor() {
+
+    }
+
+    @FXML
+    private void editorModifyMinor() {
+        editor.showMinorForm();
+    }
+
+    @FXML
+    private void editorDeleteMinor() {
+
+    }
+
     // a collection of methods used for the editor pane and the element within
     private class Editor {
 
@@ -192,12 +267,11 @@ public class MainController {
         private final DatePicker doaInput, dobInput;
         private final Label dobPrompt, doaPrompt;
         private final Label idView;
-        private final Label mailingAddrView, semesterView;
+        private final Label mailingAddrView, semesterView, majorView, minorView;
         private final TextArea rawView;
         private final Button mailingAddrMod, mailingAddrDel, semesterMod, semesterDel, emailAddrAdd, emailAddrMod,
-                emailAddrDel, phoneNumAdd, phoneNumMod, phoneNumDel;
+                emailAddrDel, phoneNumAdd, phoneNumMod, phoneNumDel, majorMod, majorDel, minorMod, minorDel;
         private final ChoiceBox<Pair<String, EnrollmentStatus>> enrollmentStatus;
-        // private final ChoiceBox<Pair<String, EmailAddress>> emailAddressView;
         private final ListView<EmailAddress> emailAddressView;
         private final ListView<PhoneNumber> phoneNumberView;
 
@@ -210,17 +284,18 @@ public class MainController {
         private final Consumer<Control> NO_OP = (_ignore) -> {}; // TODO eliminate all occurrence of NO_OP
 
         // forms for aggregate types of student
-        private FormBuilder<EmailAddress, EmailAddressForm> emailAddressFormCommon;
-        private FormBuilder<PhoneNumber, PhoneNumberForm> phoneNumberFormCommon;
+        private FormBuilder<EmailAddress, EmailAddress, EmailAddressForm> emailAddressFormCommon;
+        private FormBuilder<PhoneNumber, PhoneNumber, PhoneNumberForm> phoneNumberFormCommon;
 
         // editor state
         private Student student;
         private boolean readOnly;
-        private final Timeline autoSaveTimer;
+        private boolean isInSetupStage;
 
         public Editor() {
             this.container = editorPane;
             container.setVisible(false);
+            isInSetupStage = true;
 
             // ---------------- immutables ------------------
             this.idView = editorIDLabel; // the id is never going to change for a given student
@@ -246,6 +321,10 @@ public class MainController {
             this.emailAddrAdd = editorAddEmailAddressButton;
             this.emailAddrMod = editorModifyEmailAddressButton;
             this.emailAddrDel = editorDeleteEmailAddressButton;
+            this.majorMod = editorModifyMajorButton;
+            this.majorDel = editorDeleteMajorButton;
+            this.minorMod = editorModifyMinorButton;
+            this.minorDel = editorDeleteMinorButton;
 
 
             // ---------------- viewables -------------------
@@ -253,6 +332,8 @@ public class MainController {
             this.mailingAddrView = mailingAddressLabel;
             this.semesterView = semesterLabel;
             this.rawView = rawTextArea;
+            this.majorView = editorMajorLabel;
+            this.minorView = editorMinorLabel;
 
             // prompts
             this.doaPrompt = doaPromptLabel;
@@ -263,22 +344,9 @@ public class MainController {
             this.phoneNumberView = editorPhoneNumbersLV;
 
             operationMap = new HashMap<>();
-            initOperationMap();
+            registerEditables();
             updateMap = new HashMap<>();
             initUpdateMap();
-
-
-            // interval timer to update viewables (with polling)
-            autoSaveTimer = new Timeline(
-                    new KeyFrame(Duration.seconds(1),
-                            new EventHandler<ActionEvent>() {
-                                @Override
-                                public void handle(ActionEvent event) {
-                                    saveChangesLocally();
-                                    editor.applyUpdate(rawView);
-                                }
-                            }));
-            autoSaveTimer.setCycleCount(Timeline.INDEFINITE);
         }
 
         private void createCommonFormTemplates() {
@@ -286,15 +354,15 @@ public class MainController {
             emailAddressFormCommon = FormBuilder.buildA(new EmailAddressForm())
                     .useListTypeSetter(student::setEmailAddresses)
                     .useGetter(student::getEmailAddresses)
-                    .onSucceed(() -> applyUpdate(emailAddressView));
+                    .onSucceed(this::commitChanges);
 
             phoneNumberFormCommon = FormBuilder.buildA(new PhoneNumberForm())
                     .useListTypeSetter(student::setPhoneNumbers)
                     .useGetter(student::getPhoneNumbers)
-                    .onSucceed(() -> applyUpdate(phoneNumberView));
+                    .onSucceed(this::commitChanges);
         }
 
-        private void initOperationMap() {
+        private void registerEditables() {
             operationMap.put(firstNameInput, (self) -> {
                 String input = ((TextField)self).getText();
                 student.setFirstName((input.equals("")) ? null : input);
@@ -347,6 +415,21 @@ public class MainController {
             operationMap.put(phoneNumAdd, NO_OP); // handled by listener
             operationMap.put(phoneNumMod, NO_OP); // handled by listener
             operationMap.put(phoneNumDel, NO_OP); // handled by listener
+            operationMap.put(minorMod, NO_OP); // handled by listener
+            operationMap.put(minorDel, NO_OP); // handled by listener
+            operationMap.put(majorMod, NO_OP); // handled by listener
+            operationMap.put(majorDel, NO_OP); // handled by listener
+
+            // --------------- change listeners ------------------------
+            operationMap.keySet().forEach(component -> component.focusedProperty().addListener(
+                    (observable, oldValue, newValue) -> {
+                        if(isInSetupStage || student == null) return;
+                        if(!newValue) commitChanges(); // commit changes on losing focus
+            }));
+            enrollmentStatus.getSelectionModel().selectedItemProperty().addListener((_ig1, _ig2, _ig3) -> {
+                if(isInSetupStage || student == null) return;
+                commitChanges();
+            }); // commit changes on selecting an item
         }
 
         private void initUpdateMap() {
@@ -412,11 +495,23 @@ public class MainController {
                     });
                 }, () -> enrollmentStatus.getSelectionModel().clearSelection());
             });
+            updateMap.put(majorView, (self) -> {
+                ((Label)self).setText(
+                        Optional.ofNullable(student.getMajor()).map(Major::toString).orElse("-")
+                );
+            });
+            updateMap.put(minorView, (self) -> {
+                ((Label)self).setText(
+                        Optional.ofNullable(student.getMinor()).map(Minor::toString).orElse("-")
+                );
+            });
             updateMap.put(doaPrompt, NO_OP); // event based
             updateMap.put(dobPrompt, NO_OP); // event based
+
         }
 
         public void setupEditor(Student stu2e) {
+            isInSetupStage = true;
             if(student != null) destroyEditor();
 
             if((stu2e.getId() == null))
@@ -424,22 +519,15 @@ public class MainController {
             else
                 this.student = stu2e;
 
+            createCommonFormTemplates();
+
             updateViewableComponents();
             setReadOnly();
-            createCommonFormTemplates();
-            autoSaveTimer.play();
             this.container.setVisible(true);
+            isInSetupStage = false;
         }
 
-        public boolean destroyEditor() {
-            return destroyEditor(true);
-        }
-
-        public boolean destroyEditor(boolean skipConfirmDialog) {
-            if(skipConfirmDialog);
-
-            autoSaveTimer.stop();
-
+        public void destroyEditor() {
             this.student = null;
             this.operationMap.keySet().forEach((component) -> {
                 if(component instanceof TextInputControl) ((TextInputControl) component).clear();
@@ -453,8 +541,6 @@ public class MainController {
             this.container.setVisible(false);
 
             rawTextArea.clear();
-
-            return true;
         }
 
         public void setReadOnly() {
@@ -472,7 +558,7 @@ public class MainController {
             else setReadOnly();
         }
 
-        public void saveChangesLocally() {
+        private void saveChangesLocally() {
             this.operationMap.forEach((component, operation) -> operation.accept(component));
         }
 
@@ -480,6 +566,10 @@ public class MainController {
             this.updateMap.forEach((component, operation) -> operation.accept(component));
         }
 
+        public void commitChanges(){
+            saveChangesLocally();
+            updateViewableComponents();
+        }
 
         public Student getCurrentStateOfStudent() {
             return student;
@@ -489,7 +579,7 @@ public class MainController {
             FormBuilder.buildA(new MailingAddressForm())
                     .useSetter(student::setMailingAddress)
                     .useGetter(student::getMailingAddress)
-                    .onSucceed(() -> applyUpdate(mailingAddrView))
+                    .onSucceed(this::commitChanges)
                     .initialValue(Optional.ofNullable(student.getMailingAddress()).orElse(new MailingAddress()))
                     .buildAndShow();
         }
@@ -503,7 +593,7 @@ public class MainController {
             FormBuilder.buildA(new SemesterForm())
                     .useGetter(student::getStartSemester)
                     .useSetter(student::setStartSemester)
-                    .onSucceed(() -> applyUpdate(semesterView))
+                    .onSucceed(this::commitChanges)
                     .initialValue(Optional.ofNullable(student.getStartSemester()).orElse(new Semester()))
                     .buildAndShow();
         }
@@ -569,6 +659,24 @@ public class MainController {
                 );
                 applyUpdate(phoneNumberView);
             }, () -> leftStatus.setText("no phone number selected."));
+        }
+
+        public void showMajorForm() {
+            FormBuilder.buildA(new MajorForm())
+                    .initialValue(majors.getValue())
+                    .useGetter(student::getMajor)
+                    .useSetter(student::setMajor)
+                    .onSucceed(this::updateViewableComponents)
+                    .buildAndShow();
+        }
+
+        public void showMinorForm() {
+            FormBuilder.buildA(new MinorForm())
+                    .initialValue(minors.getValue())
+                    .useGetter(student::getMinor)
+                    .useSetter(student::setMinor)
+                    .onSucceed(this::updateViewableComponents)
+                    .buildAndShow();
         }
 
         public void applyUpdate(Control component) {

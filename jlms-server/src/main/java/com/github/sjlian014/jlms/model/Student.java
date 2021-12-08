@@ -4,19 +4,13 @@ import java.time.LocalDate;
 import java.util.List;
 import java.util.Date;
 
+import javax.annotation.Resource;
+import javax.annotation.Resources;
 import javax.persistence.*;
 
 @Entity(name = "student")
 @Table
 public class Student {
-    /*
-        public enum Major {
-            MAJOR1;
-        }
-    */
-    public enum Minor {
-        Minor1;
-    }
 
     public enum EnrollmentStatus {
         ENROLLED, NOT_ENROLLED, WITHDRAWN;
@@ -24,6 +18,7 @@ public class Student {
 
     @Id
     @GeneratedValue
+    @Column(nullable = false)
     private Long id;
     @Column(nullable = false)
     private String firstName;
@@ -46,6 +41,8 @@ public class Student {
     @ManyToOne
     @JoinColumn(name="major_id")
     private Major major;
+    @ManyToOne
+    @JoinColumn(name="minor_id")
     private Minor minor;
     private EnrollmentStatus currentStatus;
 
@@ -78,10 +75,6 @@ public class Student {
 
     public Long getId() {
         return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
     }
 
     public String getFirstName() {

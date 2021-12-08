@@ -9,14 +9,15 @@ import javafx.util.Pair;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-public class PhoneNumberForm extends BasicForm<PhoneNumber> {
+public class PhoneNumberForm extends InputForm<PhoneNumber> {
 
     private final TextField phoneNumber;
     private final ChoiceBox<Pair<String, PhoneNumber.PhoneNumberType>> phoneNumberType;
 
     public PhoneNumberForm() {
-        super("Modify Phone Number", PhoneNumber::new);
+        super("Modify Phone Number");
 
         phoneNumber = new TextField();
         phoneNumberType = ChoiceBoxUtil.mapEnum(PhoneNumber.PhoneNumberType.class);
@@ -26,7 +27,7 @@ public class PhoneNumberForm extends BasicForm<PhoneNumber> {
     }
 
     @Override
-    List<Consumer<PhoneNumber>> submitConvertorTasks() {
+    public List<Consumer<PhoneNumber>> submitConvertorTasks() {
         return List.of(
                 (number) -> number.setPhoneNum(Integer.parseInt(phoneNumber.getText())),
                 (number) -> number.setType(phoneNumberType.getValue().getValue())
@@ -47,5 +48,10 @@ public class PhoneNumberForm extends BasicForm<PhoneNumber> {
     public void clearComponents() {
         phoneNumber.clear();
         phoneNumberType.getSelectionModel().clearSelection();
+    }
+
+    @Override
+    protected Supplier<PhoneNumber> submitObjectCreationStrategy() {
+        return PhoneNumber::new;
     }
 }

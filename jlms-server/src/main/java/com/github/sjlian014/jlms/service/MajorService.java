@@ -34,6 +34,6 @@ public class MajorService {
         return majorRepository.findById(id).map(oldMajor -> {
             oldMajor.copyFrom(newMajor);
             return oldMajor;
-        }).orElseGet(()-> {throw new IllegalStateException("specified major not found");});
+        }).orElseThrow(()-> new IllegalStateException("specified major not found"));
     }
 }

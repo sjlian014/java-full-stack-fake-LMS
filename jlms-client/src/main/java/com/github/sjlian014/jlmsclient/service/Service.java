@@ -3,8 +3,7 @@ package com.github.sjlian014.jlmsclient.service;
 import com.github.sjlian014.jlmsclient.App;
 import com.github.sjlian014.jlmsclient.controller.form.ConfirmDialogBuilder;
 import com.github.sjlian014.jlmsclient.exception.UnfulfilledRequestException;
-import com.github.sjlian014.jlmsclient.model.Student;
-import com.github.sjlian014.jlmsclient.restclient.StudentClient;
+import com.github.sjlian014.jlmsclient.restclient.RestClient;
 import javafx.application.Platform;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -15,33 +14,24 @@ import javafx.scene.control.Alert;
 
 import java.util.function.Consumer;
 
-/**
- * StudentService
- *
- * proxy to student client. provide asynchronous functionalities and caches the students since the last call to the server.
- *
- * generally the methods of this class will be wrappers to underlying functions of a StudentClient with additional
- * parameters that takes in callback functions to update the UI
- */
-public class StudentService extends Service {
+public abstract class Service<T> {
 
-    private StudentClient source = new StudentClient();
-    private ReadOnlyObjectProperty<ObservableList<Student>> students =
+    private RestClient<T> source;
+    private ReadOnlyObjectProperty<ObservableList<T>> dataStore =
             new SimpleObjectProperty<>(FXCollections.observableArrayList());
 
-    public StudentService(ObjectProperty<ObservableList<Student>> bindTarget) {
-        super(bindTarget, new StudentClient());
-        // bindTarget.bind(students);
+    public Service(ObjectProperty<ObservableList<T>> bindTarget, RestClient<T> source) {
+        this.source = source;
+        bindTarget.bind(dataStore);
     }
 
-    /*
-    public void asyncGetAllStudents(Runnable callback) {
-        students.get().clear();
-        Runnable getAllStudentTask = () -> {
+    public void asyncGetAll(Runnable callback) {
+        dataStore.get().clear();
+        Runnable task = () -> {
             try {
                 var tmp = source.fetchAll();
                 Platform.runLater(() -> {
-                    students.get().addAll(tmp);
+                    dataStore.get().addAll(tmp);
                     callback.run();
                 });
             } catch (UnfulfilledRequestException e) {
@@ -49,35 +39,37 @@ public class StudentService extends Service {
                 Platform.runLater(() -> {
                     new ConfirmDialogBuilder().setAlertType(Alert.AlertType.ERROR)
                             .setTitle("Error!")
-                            .setHeaderText("An error has occurred while trying to fetch student data from the server!")
+                            .setHeaderText("An error has occurred while trying to fetch data from the server!")
                             .setContentText(e.prettyMessage())
                             .buildAndShow();
                 });
             }
         };
 
-        App.executor.execute(getAllStudentTask);
+        App.executor.execute(task);
     }
 
-    public void asyncPostStudent(Student student, Consumer<Student> callbackWithReturnedStudent) {
-        Runnable postStudentTask = () -> {
+    public void asyncPostOne(T obj2p, Consumer<T> callbackWithReturnedData) {
+        Runnable task = () -> {
             try {
-                var studentInServer = source.postOne(student);
-                Platform.runLater(() -> callbackWithReturnedStudent.accept(student));
+                var returnedObject = source.postOne(obj2p);
+                Platform.runLater(() -> callbackWithReturnedData.accept(returnedObject));
             } catch (UnfulfilledRequestException e) {
                 e.printStackTrace();
                 Platform.runLater(() -> {
                     new ConfirmDialogBuilder().setAlertType(Alert.AlertType.ERROR)
                             .setTitle("Error!")
-                            .setHeaderText("An error has occurred while trying to upload a student to the server!")
+                            .setHeaderText("An error has occurred while trying to upload submit data to the server!")
                             .setContentText(e.prettyMessage())
                             .buildAndShow();
-               });
+                });
             }
         };
 
-            App.executor.execute(postStudentTask);
+        App.executor.execute(task);
     }
-     */
 
+    public String getPathToURI() {
+        return source.getRootEndPoint();
+    }
 }

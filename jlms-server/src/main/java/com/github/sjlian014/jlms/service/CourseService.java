@@ -43,7 +43,7 @@ public class CourseService {
         return courseRepository.findById(id).map(course-> {
                 course.setName(courseRequest.getName());
                 return course;
-            }).orElseGet(()-> {throw new IllegalStateException("specified course not found");});
+            }).orElseThrow(()-> new IllegalStateException("specified course not found"));
     }
 
 }

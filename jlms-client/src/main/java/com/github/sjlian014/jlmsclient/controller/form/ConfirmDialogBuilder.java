@@ -3,6 +3,8 @@ package com.github.sjlian014.jlmsclient.controller.form;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
 
+import java.io.Closeable;
+import java.io.IOException;
 import java.util.Optional;
 
 public class ConfirmDialogBuilder {
@@ -41,7 +43,7 @@ public class ConfirmDialogBuilder {
         return confirmDialog;
    }
 
-   public boolean buildAndRun() {
+   public boolean buildAndShow() {
        Optional<ButtonType> result = build().showAndWait();
        return result.map((buttonType) -> { if(buttonType == ButtonType.OK) return true; else return false; })
                .orElse(false);

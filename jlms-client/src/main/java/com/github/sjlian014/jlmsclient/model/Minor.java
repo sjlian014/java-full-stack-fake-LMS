@@ -1,18 +1,10 @@
-package com.github.sjlian014.jlms.model;
+package com.github.sjlian014.jlmsclient.model;
 
-import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-
-import javax.persistence.*;
 import java.util.List;
 
 
-@Entity
-@Table
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "students"})
-public class Major {
+public class Minor {
 
-    @Id
-    @GeneratedValue
     private Long id;
     private String name;
     private Category category;
@@ -22,7 +14,6 @@ public class Major {
         INDUSTRIAL_ARTS, INTERDISCIPLINARY, LAW, PHYSICAL_SCIENCES, PSYCHOLOGY, SOCIAL_SCIENCE
     }
 
-    @OneToMany(mappedBy = "major")
     private List<Student> students = new java.util.ArrayList<>();
 
     public List<Student> getStudents() {
@@ -30,23 +21,23 @@ public class Major {
     }
     // TODO add a list of requirements
 
-    public Major(Long id, String name, Category category) {
+    public Minor(Long id, String name, Category category) {
         this.id = id;
         this.name = name;
         this.category = category;
         //this.students = students;
     }
 
-    public Major() {}
+    public Minor() {}
 
-    public Major(String name, Category category) {
+    public Minor(String name, Category category) {
         this.name = name;
         this.category = category;
     }
 
-    public void copyFrom(Major major2c) {
-        this.name = major2c.name;
-        this.category = major2c.category;
+    public void copyFrom(Minor minor2c) {
+        this.name = minor2c.name;
+        this.category = minor2c.category;
     }
 
     public Long getId() {
@@ -73,4 +64,8 @@ public class Major {
         this.category = category;
     }
 
+    @Override
+    public String toString() {
+        return "%s [%s]".formatted(name, category);
+    }
 }

@@ -48,9 +48,4 @@ public class StudentSerializationEngine extends SerializationEngine<Student> {
         return null;
     }
 
-    @Override
-    public String serializeMany(List<Student> students) {
-        // TODO implement serializeMany(List<Student> students)
-        throw new UnsupportedOperationException("serializeMany(List<Student> students) is not implemented");
-    }
 }

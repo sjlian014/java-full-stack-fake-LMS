@@ -1,7 +1,10 @@
 package com.github.sjlian014.jlmsclient;
 
-import com.github.sjlian014.jlmsclient.Util.ChoiceBoxUtil;
-import com.github.sjlian014.jlmsclient.model.EmailAddress;
+import com.github.sjlian014.jlmsclient.controller.form.FormBuilder;
+import com.github.sjlian014.jlmsclient.controller.form.MajorForm;
+import com.github.sjlian014.jlmsclient.model.Major;
+import com.github.sjlian014.jlmsclient.restclient.MajorClient;
+import com.github.sjlian014.jlmsclient.restclient.MinorClient;
 import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -9,12 +12,10 @@ import javafx.scene.Scene;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-/**
- * JavaFX App
- */
 public class App extends Application {
 
     // shared executor
@@ -40,6 +41,7 @@ public class App extends Application {
     }
 
     public static void main(String[] args) throws Exception {
+
         launch();
     }
 

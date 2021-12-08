@@ -9,14 +9,15 @@ import javafx.util.Pair;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-public class EmailAddressForm extends BasicForm<EmailAddress> {
+public class EmailAddressForm extends InputForm<EmailAddress> {
 
     private final TextField emailAddress;
     private final ChoiceBox<Pair<String, EmailAddress.EmailAddressType>> emailAddressType;
 
     public EmailAddressForm() {
-        super("Modify Email Address", EmailAddress::new);
+        super("Modify Email Address");
 
         emailAddress = new TextField();
         emailAddressType = ChoiceBoxUtil.mapEnum(EmailAddress.EmailAddressType.class);
@@ -26,7 +27,7 @@ public class EmailAddressForm extends BasicForm<EmailAddress> {
     }
 
     @Override
-    List<Consumer<EmailAddress>> submitConvertorTasks() {
+    protected List<Consumer<EmailAddress>> submitConvertorTasks() {
         return List.of(
                 (email) -> email.seteAddr(emailAddress.getText()),
                 (email) -> email.setType(emailAddressType.getValue().getValue())
@@ -47,5 +48,10 @@ public class EmailAddressForm extends BasicForm<EmailAddress> {
     public void clearComponents() {
         emailAddress.clear();
         emailAddressType.getSelectionModel().clearSelection();
+    }
+
+    @Override
+    protected Supplier<EmailAddress> submitObjectCreationStrategy() {
+        return EmailAddress::new;
     }
 }

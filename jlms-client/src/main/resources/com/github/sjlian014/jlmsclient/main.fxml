@@ -107,8 +107,8 @@
                   <ToolBar layoutY="400.0" prefHeight="40.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0">
                      <items>
                         <Button fx:id="newButton" mnemonicParsing="false" onAction="#editNewStudent" text="+" />
-                        <Button mnemonicParsing="false" onAction="#syncAllStudents" text="⟳" />
-                        <TextField fx:id="searchBarTF" />
+                        <Button mnemonicParsing="false" onAction="#fetchFromServer" text="⟳" />
+                        <TextField fx:id="searchBarTF" onKeyTyped="#applyStudentFilter" />
                         <Button mnemonicParsing="false" onAction="#applyStudentFilter" text="🔍" />
                      </items>
                   </ToolBar>
@@ -142,6 +142,8 @@
                               <RowConstraints maxHeight="1.7976931348623157E308" minHeight="45.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="1.7976931348623157E308" minHeight="45.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="1.7976931348623157E308" minHeight="45.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="1.7976931348623157E308" minHeight="45.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
+                              <RowConstraints maxHeight="1.7976931348623157E308" minHeight="45.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="1.7976931348623157E308" minHeight="70.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
                               <RowConstraints maxHeight="1.7976931348623157E308" minHeight="70.0" prefHeight="30.0" valignment="TOP" vgrow="SOMETIMES" />
                           </rowConstraints>
@@ -149,8 +151,8 @@
                               <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
                            </padding>
                            <children>
-                              <ChoiceBox fx:id="editorPhoneNumbersCB" prefWidth="150.0" styleClass="button" GridPane.columnIndex="1" GridPane.rowIndex="10" />
-                              <ScrollPane fitToHeight="true" fitToWidth="true" GridPane.columnIndex="1" GridPane.rowIndex="10">
+                              <ChoiceBox fx:id="editorPhoneNumbersCB" prefWidth="150.0" styleClass="button" GridPane.columnIndex="1" GridPane.rowIndex="12" />
+                              <ScrollPane fitToHeight="true" fitToWidth="true" GridPane.columnIndex="1" GridPane.rowIndex="12">
                                  <content>
                                     <ListView fx:id="editorPhoneNumbersLV" maxWidth="1.7976931348623157E308" minHeight="80.0" prefHeight="70.0" />
                                  </content>
@@ -207,37 +209,37 @@
                                  </font>
                               </Label>
                               <Label fx:id="semesterLabel" styleClass="label-unmodifiable-property" text="None" GridPane.columnIndex="1" GridPane.rowIndex="7" />
-                              <Label alignment="CENTER" text="Enrollment Status:" GridPane.halignment="RIGHT" GridPane.rowIndex="8">
+                              <Label alignment="CENTER" text="Enrollment Status:" GridPane.halignment="RIGHT" GridPane.rowIndex="10">
                                  <font>
                                     <Font size="15.0" />
                                  </font>
                               </Label>
-                              <ChoiceBox fx:id="editorEnrollmentCB" styleClass="button" GridPane.columnIndex="1" GridPane.rowIndex="8" />
-                              <Label alignment="CENTER" text="Email Addresses:" GridPane.halignment="RIGHT" GridPane.rowIndex="9">
+                              <ChoiceBox fx:id="editorEnrollmentCB" styleClass="button" GridPane.columnIndex="1" GridPane.rowIndex="10" />
+                              <Label alignment="CENTER" text="Email Addresses:" GridPane.halignment="RIGHT" GridPane.rowIndex="11">
                                  <font>
                                     <Font size="15.0" />
                                  </font>
                               </Label>
-                              <FlowPane hgap="3.0" prefHeight="200.0" prefWidth="200.0" vgap="3.0" GridPane.columnIndex="2" GridPane.rowIndex="9">
+                              <FlowPane hgap="3.0" prefHeight="200.0" prefWidth="200.0" vgap="3.0" GridPane.columnIndex="2" GridPane.rowIndex="11">
                                  <children>
                                     <Button fx:id="editorAddEmailAddressButton" mnemonicParsing="false" onAction="#editorAddEmailAddress" text="+" />
                                     <Button fx:id="editorModifyEmailAddressButton" mnemonicParsing="false" onAction="#editorModifyEmailAddress" text="✎" />
                                     <Button fx:id="editorDeleteEmailAddressButton" mnemonicParsing="false" onAction="#editorDeleteEmailAddress" text="⌫" />
                                  </children>
                               </FlowPane>
-                              <Label alignment="CENTER" text="Phone Numbers:" GridPane.halignment="RIGHT" GridPane.rowIndex="10">
+                              <Label alignment="CENTER" text="Phone Numbers:" GridPane.halignment="RIGHT" GridPane.rowIndex="12">
                                  <font>
                                     <Font size="15.0" />
                                  </font>
                               </Label>
-                              <FlowPane hgap="3.0" vgap="3.0" GridPane.columnIndex="2" GridPane.rowIndex="10">
+                              <FlowPane hgap="3.0" vgap="3.0" GridPane.columnIndex="2" GridPane.rowIndex="12">
                                  <children>
                                     <Button fx:id="editorAddPhoneNumberButton" mnemonicParsing="false" onAction="#editorAddPhoneNumber" text="+" />
                                     <Button fx:id="editorModifyPhoneNumberButton" mnemonicParsing="false" onAction="#editorModifyPhoneNumber" text="✎" />
                                     <Button fx:id="editorDeletePhoneNumberButton" mnemonicParsing="false" onAction="#editorDeletePhoneNumber" text="⌫" />
                                  </children>
                               </FlowPane>
-                              <ScrollPane fitToHeight="true" fitToWidth="true" GridPane.columnIndex="1" GridPane.rowIndex="9">
+                              <ScrollPane fitToHeight="true" fitToWidth="true" GridPane.columnIndex="1" GridPane.rowIndex="11">
                                  <content>
                                     <ListView fx:id="editorEmailAddressesLV" minHeight="70.0" prefHeight="70.0" />
                                  </content>
@@ -258,6 +260,30 @@
                                  <children>
                                     <Button fx:id="editorModifyMailingAddressButton" mnemonicParsing="false" onAction="#editorModifyMailingAddress" text="✎" />
                                     <Button fx:id="editorDeleteMailingAddressButton" mnemonicParsing="false" onAction="#editorDeleteMailingAddress" text="⌫" />
+                                 </children>
+                              </FlowPane>
+                              <Label alignment="CENTER" text="Major:" GridPane.halignment="RIGHT" GridPane.rowIndex="8">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                              <Label alignment="CENTER" text="Minor" GridPane.halignment="RIGHT" GridPane.rowIndex="9">
+                                 <font>
+                                    <Font size="15.0" />
+                                 </font>
+                              </Label>
+                              <Label fx:id="editorMajorLabel" styleClass="label-unmodifiable-property" text="None" GridPane.columnIndex="1" GridPane.rowIndex="8" />
+                              <Label fx:id="editorMinorLabel" styleClass="label-unmodifiable-property" text="None" GridPane.columnIndex="1" GridPane.rowIndex="9" />
+                              <FlowPane hgap="3.0" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="8">
+                                 <children>
+                                    <Button fx:id="editorModifyMajorButton" mnemonicParsing="false" onAction="#editorModifyMajor" text="✎" />
+                                    <Button fx:id="editorDeleteMajorButton" mnemonicParsing="false" onAction="#editorDeleteMajor" text="⌫" />
+                                 </children>
+                              </FlowPane>
+                              <FlowPane hgap="3.0" prefHeight="200.0" prefWidth="200.0" GridPane.columnIndex="2" GridPane.rowIndex="9">
+                                 <children>
+                                    <Button fx:id="editorModifyMinorButton" mnemonicParsing="false" onAction="#editorModifyMinor" text="✎" />
+                                    <Button fx:id="editorDeleteMinorButton" mnemonicParsing="false" onAction="#editorDeleteMinor" text="⌫" />
                                  </children>
                               </FlowPane>
                            </children>

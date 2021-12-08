@@ -9,14 +9,15 @@ import javafx.util.Pair;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-public class SemesterForm extends BasicForm<Semester> {
+public class SemesterForm extends InputForm<Semester> {
 
     private final TextField year;
     private final ChoiceBox<Pair<String, Semester.SemesterType>> semesterType;
 
     public SemesterForm() {
-        super("Modify Mailing Address", Semester::new);
+        super("Modify Mailing Address");
 
         year = new TextField();
         year.setPromptText("year");
@@ -29,7 +30,7 @@ public class SemesterForm extends BasicForm<Semester> {
     }
 
     @Override
-    List<Consumer<Semester>> submitConvertorTasks() {
+    public List<Consumer<Semester>> submitConvertorTasks() {
         return List.of(
                 (semester) -> semester.setYear(Integer.parseInt(year.getText())),
                 (semester) -> semester.setSemester(semesterType.getValue().getValue())
@@ -50,5 +51,10 @@ public class SemesterForm extends BasicForm<Semester> {
     public void clearComponents() {
         year.clear();
         semesterType.getSelectionModel().clearSelection();
+    }
+
+    @Override
+    protected Supplier<Semester> submitObjectCreationStrategy() {
+        return Semester::new;
     }
 }

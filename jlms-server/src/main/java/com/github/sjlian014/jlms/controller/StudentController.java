@@ -45,12 +45,8 @@ public class StudentController {
         studentService.delete(id);
     }
 
-    // endpoint for communication for two in-house programs
-    // => minimize work for the two programs to talk to each other
-
     // @PutMapping(path = "{studentId}")
     // public Student updateStudent(@PathVariable("studentId") Long id, @RequestBody StudentRequest) {
 
     // }
-
 }

@@ -1,28 +1,41 @@
 package com.github.sjlian014.jlmsclient.model;
 
+import java.util.List;
+
 public class Major {
 
     private Long id;
     private String name;
-    private String description;
-    // TODO add a list of requirements
+    private Category category;
+
+    public enum Category {
+        AGRICULTURE, ARTS, BIOLOGY, BUSINESS, COMMUNICATIONS, COMPUTERS, EDUCATION, ENGINEERING, HEALTH, HUMANITIES,
+        INDUSTRIAL_ARTS, INTERDISCIPLINARY, LAW, PHYSICAL_SCIENCES, PSYCHOLOGY, SOCIAL_SCIENCE
+    }
+
+    private List<Student> students = new java.util.ArrayList<>();
+
+    public List<Student> getStudents() {
+        return students;
+    }
+
+    public Major(Long id, String name, Category category) {
+        this.id = id;
+        this.name = name;
+        this.category = category;
+        //this.students = students;
+    }
 
     public Major() {}
 
-    public Major(Long id, String name, String description) {
-        this.id = id;
+    public Major(String name, Category category) {
         this.name = name;
-        this.description = description;
-    }
-
-    public Major(String name, String description) {
-        this.name = name;
-        this.description = description;
+        this.category = category;
     }
 
     public void copyFrom(Major major2c) {
         this.name = major2c.name;
-        this.description = major2c.description;
+        this.category = major2c.category;
     }
 
     public Long getId() {
@@ -41,12 +54,17 @@ public class Major {
         this.name = name;
     }
 
-    public String getDescription() {
-        return description;
+    public Category getCategory() {
+        return category;
     }
 
-    public void setDescription(String description) {
-        this.description = description;
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    @Override
+    public String toString() {
+        return "%s [%s]".formatted(name, category);
     }
 
 }

@@ -8,8 +8,9 @@ import javafx.util.Pair;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
+import java.util.function.Supplier;
 
-public class MailingAddressForm extends BasicForm<MailingAddress> {
+public class MailingAddressForm extends InputForm<MailingAddress> {
 
     private final TextField street;
     private final TextField city;
@@ -18,7 +19,7 @@ public class MailingAddressForm extends BasicForm<MailingAddress> {
     private final ChoiceBox<Pair<String, MailingAddress.AddrType>> addressType;
 
     public MailingAddressForm() {
-        super("Modify Mailing Address", MailingAddress::new);
+        super("Modify Mailing Address");
 
         street = new TextField();
         city = new TextField();
@@ -34,7 +35,7 @@ public class MailingAddressForm extends BasicForm<MailingAddress> {
     }
 
     @Override
-    List<Consumer<MailingAddress>> submitConvertorTasks() {
+    protected List<Consumer<MailingAddress>> submitConvertorTasks() {
         return List.of(
                 (address) -> address.setStreet(street.getText()),
                 (address) -> address.setCity(city.getText()),
@@ -64,5 +65,10 @@ public class MailingAddressForm extends BasicForm<MailingAddress> {
         state.clear();
         zip.clear();
         addressType.getSelectionModel().clearSelection();
+    }
+
+    @Override
+    protected Supplier<MailingAddress> submitObjectCreationStrategy() {
+        return MailingAddress::new;
     }
 }
